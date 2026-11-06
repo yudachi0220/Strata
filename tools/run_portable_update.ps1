@@ -6,8 +6,8 @@ $env:PYTHONPATH = $null
 $env:PYTHONNOUSERSITE = '1'
 $env:PYTHONDONTWRITEBYTECODE = '1'
 $options = @()
-if ($env:T8_UPDATE_OPTIONS) {
-    $requested = $env:T8_UPDATE_OPTIONS.Trim()
+if ($env:Strata_UPDATE_OPTIONS) {
+    $requested = $env:Strata_UPDATE_OPTIONS.Trim()
     if ($requested -eq '--check') {
         $options = @('--check')
     } elseif ($requested -match '^--edition\s+(Portable-NoModels|VisionReady-NoMainModel)$') {

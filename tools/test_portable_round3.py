@@ -147,7 +147,7 @@ class EditionTransitions(unittest.TestCase):
             if previous_edition=='VisionReady-NoMainModel':
                 original['vision']={'bundled':True}; original['args'].append('--vision')
             portable.save_json(cfg,original)
-            previous={'version':'0.1.39-t8.9','edition':previous_edition,'data':str(root/'model')}
+            previous={'version':'0.1.39','edition':previous_edition,'data':str(root/'model')}
             current=dict(previous,edition=current_edition)
             portable.save_json(state,{'portable_config':cfg.name,'portable_fingerprint':previous})
             (root/'meta.json').write_text(json.dumps({'edition':current_edition}))
@@ -348,7 +348,7 @@ class ExistingUpdatePlan(unittest.TestCase):
     def test_noop_clears_a_stale_plan_for_a_different_pending_edition(self):
         root,release,fetch=self.fixture(); control=root/'.portable-update'; control.mkdir()
         path=control/'plan.json'; path.write_text('{"edition":"VisionReady-NoMainModel"}')
-        release=dict(release,tag_name='v0.1.39-t8.1')
+        release=dict(release,tag_name='v0.1.39')
         with mock.patch.object(update,'running_processes',return_value=[]), mock.patch.object(update,'fetch') as fetch:
             self.assertIsNone(update.prepare(root,release,edition='Portable-NoModels'))
         fetch.assert_not_called(); self.assertFalse(path.exists())

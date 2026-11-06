@@ -15,7 +15,7 @@ from tools.portable_weights import weight_declaration
 
 
 def metadata(commit):
-    return {'repository': 'T8mars/Strata-T8', 'version': '0.1.40-t8.1', 'revision': 1,
+    return {'repository': 'yudachi0220/Strata', 'version': '0.1.40', 'revision': 1,
             'upstream_repository': 'Niko1221/Strata', 'upstream_version': '0.1.40',
             'upstream_release_tag': 'v0.1.40.1', 'upstream_commit': commit,
             'engine_version': '0.1.40', 'python_version': '3.12.10', 'protocol_version': 1,
@@ -68,11 +68,11 @@ class FourPartNativeCheckout(GitFixture):
     def test_exact_native_hotfix_can_publish_three_part_package_family(self):
         (self.root/'CMakeLists.txt').write_text('project(strata VERSION 0.1.40.2)')
         self.meta.update(upstream_version='0.1.40.2', engine_version='0.1.40.2',
-                         upstream_release_tag='v0.1.40.2', version='0.1.40-t8.2', revision=2)
+                         upstream_release_tag='v0.1.40.2', version='0.1.40', revision=2)
         (self.root/'meta.json').write_text(json.dumps(self.meta))
         self.commit('exact native hotfix source')
         meta, head = publish.checkout_identity(self.root)
-        self.assertEqual(meta['version'], '0.1.40-t8.2')
+        self.assertEqual(meta['version'], '0.1.40')
         self.assertEqual(meta['engine_version'], '0.1.40.2')
         self.assertEqual(head, self.git('rev-parse', 'HEAD'))
         self.meta['engine_version'] = '0.1.40'
@@ -389,7 +389,7 @@ class ArchiveAudit(GitFixture):
                 'cuda_architectures':list(native_build.ARCHITECTURES), 'utf8_manifest':'activeCodePage=UTF-8'}
         def edit_build(build):
             if build['upstream_asset']['name'] == 'strata-windows-x64.zip':
-                build['t8_native_build'] = native; build['vision'] = 'gpu'
+                build['strata_native_build'] = native; build['vision'] = 'gpu'
                 build['portable_patches']['vision_utf8'] = {'sha256_before':'1'*64,
                     'sha256_after':native['outputs']['strata-vision.exe']['sha256'], 'manifest':'activeCodePage=UTF-8'}
         return native, edit_build

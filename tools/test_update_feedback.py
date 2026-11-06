@@ -119,7 +119,7 @@ class Downloads(unittest.TestCase):
 @unittest.skipUnless(os.name=='nt','Windows native update path checks')
 class NativePathChecks(unittest.TestCase):
     def test_long_and_dangling_junctions_are_refused_without_following_them(self):
-        with tempfile.TemporaryDirectory(prefix='T8 path checks ') as temporary:
+        with tempfile.TemporaryDirectory(prefix='Strata path checks ') as temporary:
             base=Path(temporary).resolve();root=base/'app';root.mkdir()
             outside=base/'outside';outside.mkdir();(outside/'keep.txt').write_text('private sentinel')
             deep=root
@@ -145,14 +145,14 @@ $definition=$tree.Find({param($n) $n -is [Management.Automation.Language.Functio
 Invoke-Expression $definition
 $paths=Get-Content -LiteralPath $Config -Raw | ConvertFrom-Json
 foreach($link in $paths.links) {
-    if(![T8Paths]::IsReparse($link)){throw 'Junction was treated as a missing or ordinary path'}
+    if(![StrataPaths]::IsReparse($link)){throw 'Junction was treated as a missing or ordinary path'}
     $relative=$link.Substring($paths.root.Length+1).Replace('\\','/')
     $blocked=$false
     try {$null=ScopedPath $paths.root ($relative+'/keep.txt')}
     catch {if($_.Exception.Message -notlike 'Linked path:*'){throw};$blocked=$true}
     if(!$blocked){throw 'ScopedPath accepted a junction'}
 }
-if([T8Paths]::IsReparse($paths.root)){throw 'Ordinary directory rejected'}
+if([StrataPaths]::IsReparse($paths.root)){throw 'Ordinary directory rejected'}
 Write-Output 'path-guards-ok'
 ''',encoding='utf-8')
                 source=Path(__file__).resolve().parent/'apply_portable_update.ps1'

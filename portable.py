@@ -360,7 +360,7 @@ def set_native_video(config, enabled):
             raise RuntimeError('Native video requires the NVIDIA engine and an enabled vision encoder')
         build = read_json(configured_engine(config)/'BUILD.json')
         if (build.get('capabilities') or {}).get('native_video') is not True:
-            raise RuntimeError('This package does not contain the T8 native-video engine; update the package first')
+            raise RuntimeError('This package does not contain the Strata native-video engine; update the package first')
     if isinstance(config.get('vision'), dict):
         config['vision']['native_video'] = bool(enabled)
     if not enabled:

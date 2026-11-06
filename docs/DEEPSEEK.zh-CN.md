@@ -1,6 +1,6 @@
 # DeepSeek 本地模型
 
-T8 0.2.10 使用独立的 `engine-dsv41` 0.1.56 引擎运行 DeepSeek-V4.1-Flash-1017。模型仍需单独提供；导入只检查本地文件，不下载权重。来源：[DeepSeek 官方模型](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017)、[上游格式与模型说明](https://github.com/Niko1221/Strata/blob/v0.2.10/docs/MODELS.md#deepseek-v41-flash)。
+Strata 0.2.10 使用独立的 `engine-dsv41` 0.1.56 引擎运行 DeepSeek-V4.1-Flash-1017。模型仍需单独提供；导入只检查本地文件，不下载权重。来源：[DeepSeek 官方模型](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017)、[上游格式与模型说明](https://github.com/Niko1221/Strata/blob/v0.2.10/docs/MODELS.md#deepseek-v41-flash)。
 
 ## 选择模型
 

@@ -1,10 +1,10 @@
-# Strata-T8 0.1.42-t8.1 验证
+# Strata 0.1.42 验证
 
 同步上游 [v0.1.42](https://github.com/Niko1221/Strata/releases/tag/v0.1.42)，源码 `61b3fb5dd3f1e8ec09cf7e4e05208bc6d3c46406`，CUDA/HIP 引擎均为 `0.1.42`。独立节点保持 `1.0.7` 和 Protocol 1。
 
 ## 同步与修复
 
-合入 0.1.41 至 0.1.42 的累计变化：请求排队保活、取消后缓存恢复、工具顺序与思考处理、上下文边界、logit_bias、replicas，以及 Windows AMD RAM/commit 保护、多卡、Intel 和旧卡修复。保留 T8 的请求总时限、严格 JSON/工具校验、视觉缓存、双引擎释放、离线模型导入与更新回滚。
+合入 0.1.41 至 0.1.42 的累计变化：请求排队保活、取消后缓存恢复、工具顺序与思考处理、上下文边界、logit_bias、replicas，以及 Windows AMD RAM/commit 保护、多卡、Intel 和旧卡修复。保留 Strata 的请求总时限、严格 JSON/工具校验、视觉缓存、双引擎释放、离线模型导入与更新回滚。
 
 修复三个集成问题：模型目录省略 families 时采用上游的 Qwen/Swift 默认范围；按需加载先读取 READY 能力再校验合法 logit_bias；请求读取器接通 STRATA_MAX_BODY_MIB，普通和分块请求均受限制。错误 bias 仍在加载前拒绝；管理接口保留 64KiB 上限。补齐分发包中的 LOGIT_BIAS.md。
 
@@ -45,4 +45,4 @@ Windows、RTX 4060 Ti 16GB、128GB RAM；ComfyUI 0.38.0、PyTorch 2.7.0+cu128、
 
 两版均内置 Python、依赖、CUDA/HIP 引擎、配置模板及逐文件摘要。VisionReady 含固定视觉权重与许可证；NoModels 不含权重。主模型、MTP、本机档案、凭据及私人路线图均不进入发行资产。既有主模型、MTP、视觉与用户配置沿用，本次没有重新下载这些权重。
 
-发布前审计本地 ZIP、摘要及来源，并用旧版 0.1.40-t8.4 的真实 Python/更新器验证两版升级及同版本视觉版切换。发布后独立核验公开清单、来源和资产摘要，并验证旧版能发现更新、新版不提示重复升级。节点生产代码不变，Registry 状态以官方审核为准。
+发布前审计本地 ZIP、摘要及来源，并用旧版 0.1.40 的真实 Python/更新器验证两版升级及同版本视觉版切换。发布后独立核验公开清单、来源和资产摘要，并验证旧版能发现更新、新版不提示重复升级。节点生产代码不变，Registry 状态以官方审核为准。

@@ -1,4 +1,4 @@
-"""Build the opt-in T8 CUDA video engine before packaging; recipients need no compiler.
+"""Build the opt-in Strata CUDA video engine before packaging; recipients need no compiler.
 
 Keep vendor runtime DLLs and upstream_asset identity. Build both executables and
 the K-quant library for the same seven CUDA architectures, then atomically install a new
@@ -85,7 +85,7 @@ def prepare_llama(root, cache):
     if not archive.is_file():
         url = f'https://github.com/ggml-org/llama.cpp/archive/{pin}.zip'
         temporary = archive.with_suffix('.download')
-        req = urllib.request.Request(url, headers={'User-Agent': 'Strata-T8-native-build'})
+        req = urllib.request.Request(url, headers={'User-Agent': 'Strata-native-build'})
         try:
             with urllib.request.urlopen(req, timeout=60) as response, temporary.open('wb') as stream:
                 shutil.copyfileobj(response, stream)
@@ -153,7 +153,7 @@ def validate_native_build(native, root, engine_directory=None, check_source=True
         raise ValueError('Publisher requires the complete native source checkout')
     if check_source and (Path(root)/'src/program/generate.cpp').is_file():
         if native_inputs(root) != identity.get('inputs'):
-            raise ValueError('Native source changed: rebuild T8 binaries before packaging')
+            raise ValueError('Native source changed: rebuild Strata binaries before packaging')
         if (Path(root)/'third_party/llama.cpp/src/llama.cpp').is_file() and canonical_digest(llama_inputs(root)) != third['source_tree_sha256']:
             raise ValueError('Pinned native third-party source changed: rebuild required')
     outputs = native.get('outputs', {})
@@ -314,7 +314,7 @@ def install_build(root, destination, artifacts, native, build_root):
     if not isinstance(build.get('upstream_asset'), dict):
         raise ValueError('Install requires complete upstream_asset provenance from bootstrap')
     from windows_utf8_manifest import patch_executable
-    temporary = Path(tempfile.mkdtemp(prefix='.t8-native-stage-', dir=destination))
+    temporary = Path(tempfile.mkdtemp(prefix='.native-stage-', dir=destination))
     previous = temporary/'previous'
     keep_backup = False
     try:
@@ -354,9 +354,9 @@ def install_build(root, destination, artifacts, native, build_root):
         # These fields describe the installed executables. The original vendor
         # release remains fully identified in the untouched upstream_asset.
         from portable_version import source_version
-        build.update(version=source_version(root), source='t8_native_build', archs=list(map(int, ARCHITECTURES)),
+        build.update(version=source_version(root), source='strata_native_build', archs=list(map(int, ARCHITECTURES)),
                      cuda=cuda_series[1], portable=True, vision='gpu')
-        build['t8_native_build'] = native
+        build['strata_native_build'] = native
         (incoming/'BUILD.json').write_text(json.dumps(build, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
         validate_native_build(native, root, incoming)
         windows_file_operation(lambda: target.rename(previous))
@@ -384,12 +384,12 @@ def main(argv=None):
     root = args.root.resolve(); destination = (args.destination or root).resolve()
     if args.verify:
         build = json.loads((destination/'engine/BUILD.json').read_text('utf-8'))
-        validate_native_build(build.get('t8_native_build'), root, destination/'engine')
-        print('T8 native source, architecture and executable identity verified', flush=True)
+        validate_native_build(build.get('strata_native_build'), root, destination/'engine')
+        print('Strata native source, architecture and executable identity verified', flush=True)
         return
     if os.name != 'nt' or args.jobs < 1 or args.jobs > 32:
         raise ValueError('Windows x64 and jobs in 1..32 required')
-    build_root = (args.build_root or root/'.portable-build/t8-native').resolve()
+    build_root = (args.build_root or root/'.portable-build/native').resolve()
     if build_root == root or build_root == destination or not build_root.is_relative_to(root):
         raise ValueError('Build directory must be a separate child of the source checkout')
     build_root.mkdir(parents=True, exist_ok=True)
@@ -448,7 +448,7 @@ def main(argv=None):
               'libraries': {name: item for name, item in outputs.items() if name.endswith('.dll')}}
     install_build(root, destination, artifacts, native, build_root)
     (build_root/'NATIVE-BUILD.json').write_text(json.dumps(native, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-    print('Installed portable T8 native CUDA build; vendor HIP remains without native-video support', flush=True)
+    print('Installed portable Strata native CUDA build; vendor HIP remains without native-video support', flush=True)
 
 
 if __name__ == '__main__':

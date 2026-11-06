@@ -1,4 +1,4 @@
-# Strata-T8 0.1.42-t8.8 视频与对白验证
+# Strata 0.1.42 视频与对白验证
 
 日期：2026-10-14。配套节点 1.2.0、协议 1。硬件为 RTX 4060 Ti 16GB、128GB RAM、Windows x64；主模型为 SC117 Qwen3.8-Flash-Next IQ3_S，语音模型为官方 Confucius4-R2T2 2B Q4_K_M + Q8 音频 projector。默认发行提供 CPU 语音组件，CUDA 语音组件未进入默认包。
 

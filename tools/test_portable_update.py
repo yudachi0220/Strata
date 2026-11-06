@@ -17,9 +17,9 @@ from tools.portable_version import archive_name, version_key
 SOURCE = Path(__file__).resolve().parents[1]
 
 
-def package(root, files, version='0.1.39-t8.2'):
+def package(root, files, version='0.1.39'):
     root.mkdir(parents=True, exist_ok=True)
-    files = dict(files, **{'meta.json': json.dumps({'version': version, 'repository': 'T8mars/Strata-T8'})})
+    files = dict(files, **{'meta.json': json.dumps({'version': version, 'repository': 'yudachi0220/Strata'})})
     entries = []
     for name, content in files.items():
         file = root/name
@@ -39,9 +39,9 @@ class ReleaseValidation(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_version_order_and_stable_only(self):
-        self.assertGreater(version_key('v0.1.40-t8.1'), version_key('0.1.39-t8.9'))
-        self.assertGreater(version_key('0.1.39-t8.10'), version_key('0.1.39-t8.2'))
-        for version in ('nightly', 'v0.1.39', '0.1.39-t8.1-beta'):
+        self.assertGreater(version_key('v0.1.40'), version_key('0.1.39'))
+        self.assertGreater(version_key('0.1.39'), version_key('0.1.39'))
+        for version in ('nightly', 'v0.1.39', '0.1.39-beta'):
             with self.assertRaises(ValueError): version_key(version)
 
     def test_paths_cannot_touch_user_data_or_escape(self):
@@ -80,7 +80,7 @@ class ReleaseValidation(unittest.TestCase):
 
     def fixture(self):
         root = self.base/'installed'
-        package(root, {'app.py': 'old', 'obsolete.py': 'old'}, '0.1.39-t8.1')
+        package(root, {'app.py': 'old', 'obsolete.py': 'old'}, '0.1.39')
         (root/'tools').mkdir()
         shutil.copy2(SOURCE/'tools/apply_portable_update.ps1', root/'tools/apply_portable_update.ps1')
         incoming = self.base/'source'
@@ -90,8 +90,8 @@ class ReleaseValidation(unittest.TestCase):
             for file in incoming.rglob('*'):
                 if file.is_file(): z.write(file, 'app/'+file.relative_to(incoming).as_posix())
         payload = zipbytes.getvalue()
-        name = archive_name('0.1.39-t8.2')
-        release = {'tag_name': 'v0.1.39-t8.2', 'assets': [{'name': name, 'size': len(payload), 'browser_download_url': 'https://github.com/zip'}, {'name': name+'.sha256', 'browser_download_url': 'https://github.com/hash'}]}
+        name = archive_name('0.1.39')
+        release = {'tag_name': 'v0.1.39', 'assets': [{'name': name, 'size': len(payload), 'browser_download_url': 'https://github.com/zip'}, {'name': name+'.sha256', 'browser_download_url': 'https://github.com/hash'}]}
         def fetch(url, destination=None, limit=None):
             if destination:
                 destination.write_bytes(payload)
@@ -108,7 +108,7 @@ class ReleaseValidation(unittest.TestCase):
         self.assertTrue((root/'.portable-update/plan.json').is_file())
         self.assertEqual((root/'app.py').read_text(), 'old')
         self.assertEqual((root/'portable-settings.json').read_text(), 'my config')
-        self.assertEqual(plan['version'], '0.1.39-t8.2')
+        self.assertEqual(plan['version'], '0.1.39')
 
     def test_prepare_refuses_busy_git_and_custom_file_collision(self):
         root, release, fetch = self.fixture()
@@ -127,7 +127,7 @@ class ReleaseValidation(unittest.TestCase):
     def test_archive_checksum_failure_cannot_prepare_plan(self):
         root, release, fetch = self.fixture()
         def corrupted(url, destination=None, limit=None):
-            if not destination: return (('0'*64)+'  '+archive_name('0.1.39-t8.2')).encode()
+            if not destination: return (('0'*64)+'  '+archive_name('0.1.39')).encode()
             return fetch(url, destination, limit)
         (self.base/'stage').mkdir()
         with mock.patch.object(update, 'fetch', side_effect=corrupted), mock.patch.object(update, 'running_processes', return_value=[]), mock.patch.object(update.tempfile, 'mkdtemp', return_value=str(self.base/'stage')):
@@ -152,7 +152,7 @@ class WindowsApply(unittest.TestCase):
     tearDown = ReleaseValidation.tearDown
     def plan(self, extra=None):
         root = self.base/'installed'
-        old = package(root, {'app.py': 'old', 'obsolete.py': 'old'}, '0.1.39-t8.1')
+        old = package(root, {'app.py': 'old', 'obsolete.py': 'old'}, '0.1.39')
         incoming = self.base/'stage'
         new = package(incoming, {'app.py': 'new', **(extra or {})})
         (root/'.portable-update').mkdir()
@@ -189,7 +189,7 @@ class WindowsApply(unittest.TestCase):
         self.assertEqual((root/'app.py').read_text(), 'old')
         self.assertEqual((root/'obsolete.py').read_text(), 'old')
         self.assertTrue((root/'blocked.py').is_dir())
-        self.assertEqual(json.loads((root/'PACKAGE-MANIFEST.json').read_text())['version'], '0.1.39-t8.1')
+        self.assertEqual(json.loads((root/'PACKAGE-MANIFEST.json').read_text())['version'], '0.1.39')
 
     def test_staged_corruption_changes_nothing(self):
         root, incoming, path = self.plan()
@@ -218,8 +218,8 @@ class WindowsApply(unittest.TestCase):
     def test_unrelated_stale_process_path_does_not_abort_update(self):
         root, _, path = self.plan()
         wrapper = self.base/'stale-process.ps1'
-        wrapper.write_text('function Get-CimInstance { [pscustomobject]@{ ExecutablePath=$env:T8_STALE_EXE } }\n& $env:T8_APPLY_SCRIPT -PlanPath $env:T8_PLAN\nexit $LASTEXITCODE\n', encoding='utf-8')
-        env = dict(os.environ, T8_STALE_EXE=str(self.base/'other/missing.exe'), T8_APPLY_SCRIPT=str(SOURCE/'tools/apply_portable_update.ps1'), T8_PLAN=str(path))
+        wrapper.write_text('function Get-CimInstance { [pscustomobject]@{ ExecutablePath=$env:Strata_STALE_EXE } }\n& $env:Strata_APPLY_SCRIPT -PlanPath $env:Strata_PLAN\nexit $LASTEXITCODE\n', encoding='utf-8')
+        env = dict(os.environ, Strata_STALE_EXE=str(self.base/'other/missing.exe'), Strata_APPLY_SCRIPT=str(SOURCE/'tools/apply_portable_update.ps1'), Strata_PLAN=str(path))
         result = subprocess.run(['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(wrapper)], env=env, capture_output=True, timeout=45)
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         self.assertEqual((root/'app.py').read_text(), 'new')
@@ -228,8 +228,8 @@ class WindowsApply(unittest.TestCase):
         root, _, path = self.plan({'locked.py': 'new'})
         (root/'locked.py').write_text('old locked')
         wrapper = self.base/'lock.ps1'
-        wrapper.write_text('$lock = [IO.File]::Open($env:T8_LOCKED_FILE, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)\n& $env:T8_APPLY_SCRIPT -PlanPath $env:T8_PLAN\nexit $LASTEXITCODE\n', encoding='utf-8')
-        env = dict(os.environ, T8_LOCKED_FILE=str(root/'locked.py'), T8_APPLY_SCRIPT=str(SOURCE/'tools/apply_portable_update.ps1'), T8_PLAN=str(path))
+        wrapper.write_text('$lock = [IO.File]::Open($env:Strata_LOCKED_FILE, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)\n& $env:Strata_APPLY_SCRIPT -PlanPath $env:Strata_PLAN\nexit $LASTEXITCODE\n', encoding='utf-8')
+        env = dict(os.environ, Strata_LOCKED_FILE=str(root/'locked.py'), Strata_APPLY_SCRIPT=str(SOURCE/'tools/apply_portable_update.ps1'), Strata_PLAN=str(path))
         result = subprocess.run(['powershell', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(wrapper)], env=env, capture_output=True, timeout=45)
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual((root/'app.py').read_text(), 'old')
@@ -239,7 +239,7 @@ class WindowsApply(unittest.TestCase):
         root, _, path = self.plan()
         command = root/'cmd.exe'
         shutil.copy2(Path(os.environ['SystemRoot'])/'System32/cmd.exe', command)
-        process = subprocess.Popen([str(command), '/c', 'set /p T8_WAIT=waiting'], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
+        process = subprocess.Popen([str(command), '/c', 'set /p Strata_WAIT=waiting'], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
         try:
             self.assertIsNone(process.poll())
             self.assertIn(process.pid, update.running_processes(root))

@@ -1,6 +1,6 @@
 # 视频对白与画面联合分析
 
-可选语音转录使用 [Confucius4-R2T2](https://github.com/T8mars/comfyui-confucius-r2t2-t8) 的独立 GGUF 后端，默认关闭。勾选聊天页“视频分析设置 → 自动转录语音并分析对白”后，先转录选定的视频时间范围，再按同一时间轴分析画面与对白。每个视觉小段只使用实际交叠的对白，整片汇总按对白 ID 去重。
+可选语音转录使用 [Confucius4-R2T2](https://github.com/yudachi0220/comfyui-confucius-r2t2) 的独立 GGUF 后端，默认关闭。勾选聊天页“视频分析设置 → 自动转录语音并分析对白”后，先转录选定的视频时间范围，再按同一时间轴分析画面与对白。每个视觉小段只使用实际交叠的对白，整片汇总按对白 ID 去重。
 
 上传后修改分析时长、FPS、处理方式或视频模式，发送前会自动重新采样；失败或取消时不沿用旧范围发起分析。点击“整个视频”可清除开始时间和时长限制。页面分别显示原视频时长、选定范围和实际采样帧时间；最后一帧采样时间不代表视频结束时间。低帧率或可变帧率视频可能存在没有源画面的短窗口，这些窗口明确记录为缺少画面，相关对白仍保留，不补写未观察到的动作。
 
@@ -20,13 +20,13 @@
 
 主模型与音频 projector 合计约 **1.46 GB / 1.36 GiB**；不要使用视觉 projector 替代。Q8 主模型也受显式清单支持，但体积更大。VAD 目录可单独设置；留空时使用语音模型目录下的 `FireRedVAD-ONNX`。
 
-下载优先 [官方 ModelScope](https://modelscope.cn/models/netease-youdao/Confucius4-R2T2-GGUF/files)，再使用国内镜像或 [官方 Hugging Face](https://huggingface.co/netease-youdao/Confucius4-R2T2-GGUF/tree/86ff0251cb9f456b63aeef5f80137f104e22869a)。辅助文件及许可见 [T8star 模型镜像](https://huggingface.co/t8star/Confucius-R2t2-Comfy/tree/2223a55593a85bbaf2b12d58c410da67a8822608)。需要自行准备时，在运行包目录显式执行：
+下载优先 [官方 ModelScope](https://modelscope.cn/models/netease-youdao/Confucius4-R2T2-GGUF/files)，再使用国内镜像或 [官方 Hugging Face](https://huggingface.co/netease-youdao/Confucius4-R2T2-GGUF/tree/86ff0251cb9f456b63aeef5f80137f104e22869a)。辅助文件及许可见 [yudachi0220 模型镜像](https://huggingface.co/yudachi0220/Confucius-R2t2-Comfy/tree/2223a55593a85bbaf2b12d58c410da67a8822608)。需要自行准备时，在运行包目录显式执行：
 
 ```powershell
 .\runtime\python\python.exe -X utf8 .\tools\prepare_asr_models.py --model-dir "D:\Models\Confucius4-R2T2-GGUF"
 ```
 
-该命令会下载并核对固定版本、大小和 SHA256。普通启动、保存设置、关闭自动转录和软件更新均不下载语音权重。**Strata-T8 0.1.42-t8.8** 起默认提供独立 CPU Python/推理依赖；语音主模型、音频 projector 和 VAD 放在外置模型目录，不进入默认运行包。源码安装需要先准备 ASR 运行组件，详情见 `tools/build_asr_runtime.ps1`。旧版运行包请先更新；节点使用 **1.2.0** 或更新版本。
+该命令会下载并核对固定版本、大小和 SHA256。普通启动、保存设置、关闭自动转录和软件更新均不下载语音权重。**Strata 0.1.42** 起默认提供独立 CPU Python/推理依赖；语音主模型、音频 projector 和 VAD 放在外置模型目录，不进入默认运行包。源码安装需要先准备 ASR 运行组件，详情见 `tools/build_asr_runtime.ps1`。旧版运行包请先更新；节点使用 **1.2.0** 或更新版本。
 
 ## 字幕、取消与错误
 
@@ -44,7 +44,7 @@ CPU 转录可与已驻留的主模型共存。CUDA 为可选运行组件；当�
 
 API 新增 `GET /v1/asr/capabilities`、`GET /v1/asr/status`、`GET/POST /v1/asr/settings`、`POST /v1/audio/transcribe`、`POST /v1/video/transcribe`、`POST /v1/asr/transcript/parse`。沿用现有 API key、Host 与配置修改来源检查。视频上传上限 128 MiB，音频上传上限 256 MiB，选中范围最多 3600 秒。上传以 JSON base64 发送；ComfyUI 的客户端请求预算更小，长音频按节点提示缩短或分段。
 
-独立 [Strata ComfyUI 节点](https://github.com/T8mars/Comfyui-Strata-T8) 使用同一 runtime 的模型设置和接口，新增语音转录节点及现有视频节点的可选音频/时标字幕输入。工作流保存 profile 名称；私有路径和 API key 不写进工作流。更新本地节点后重启 ComfyUI。
+独立 [Strata ComfyUI 节点](https://github.com/yudachi0220/Comfyui-Strata) 使用同一 runtime 的模型设置和接口，新增语音转录节点及现有视频节点的可选音频/时标字幕输入。工作流保存 profile 名称；私有路径和 API key 不写进工作流。更新本地节点后重启 ComfyUI。
 
 时标来自 VAD/识别分段，属于段级近似范围，不是逐词或口型强制对齐。对白是转录数据，画面与对白对应关系仍需校对；多人重叠、音乐人声、跨段长句可能产生识别或时间误差。功能不会自动识别说话人、环境音或音乐，也不能仅凭声音与人物同时出现就确定是谁在讲话。
 

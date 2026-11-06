@@ -42,7 +42,7 @@ class RetryAfterRollback(unittest.TestCase):
     def test_plan_delete_failure_does_not_leave_a_successful_receipt(self):
         root, _, path, plan = self.owned_plan()
         body = '''function Remove-Item { param([string]$LiteralPath,[switch]$Force)
-if ($LiteralPath -eq $env:T8_PLAN) { throw 'controlled plan deletion denied' }
+if ($LiteralPath -eq $env:Strata_PLAN) { throw 'controlled plan deletion denied' }
 Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$Force
 }'''
         result = self.wrapper(path, body)
@@ -68,7 +68,7 @@ Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$F
 $value = Microsoft.PowerShell.Management\\New-Item -ItemType $ItemType -Path $Path -Force:$Force
 throw 'controlled post-create failure'
 }'''
-        first = self.wrapper(path, body, T8_BACKUP=plan['backup'])
+        first = self.wrapper(path, body, Strata_BACKUP=plan['backup'])
         self.assertNotEqual(first.returncode, 0)
         self.assertEqual((root/'nested/app.py').read_text(), 'old')
         retry = self.apply(path)
@@ -84,11 +84,11 @@ throw 'controlled post-create failure'
                 self.base = subcase
                 try:
                     root, _, path, plan = self.owned_plan()
-                    change = ("[IO.Directory]::CreateDirectory((Join-Path $env:T8_BACKUP 'user-empty')) | Out-Null"
+                    change = ("[IO.Directory]::CreateDirectory((Join-Path $env:Strata_BACKUP 'user-empty')) | Out-Null"
                               if empty_directory else
-                              "[IO.File]::WriteAllText((Join-Path $env:T8_BACKUP 'user.txt'),'keep user content')")
+                              "[IO.File]::WriteAllText((Join-Path $env:Strata_BACKUP 'user.txt'),'keep user content')")
                     body = "function Copy-Item {\n"+change+"\nthrow 'controlled copy failure'\n}"
-                    result = self.wrapper(path, body, T8_BACKUP=plan['backup'])
+                    result = self.wrapper(path, body, Strata_BACKUP=plan['backup'])
                     self.assertNotEqual(result.returncode, 0)
                     backup = Path(plan['backup'])
                     if empty_directory:
@@ -104,13 +104,13 @@ throw 'controlled post-create failure'
         root, _, path, plan = self.owned_plan()
         receipt = root/'.portable-update/history'/(plan['stage_owner']+'.json')
         body = '''function Remove-Item { param([string]$LiteralPath,[switch]$Force)
-if ($LiteralPath -eq $env:T8_PLAN) {
-  [IO.File]::WriteAllText($env:T8_RECEIPT,'user changed receipt')
+if ($LiteralPath -eq $env:Strata_PLAN) {
+  [IO.File]::WriteAllText($env:Strata_RECEIPT,'user changed receipt')
   throw 'controlled plan deletion denied'
 }
 Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$Force
 }'''
-        result = self.wrapper(path, body, T8_RECEIPT=receipt)
+        result = self.wrapper(path, body, Strata_RECEIPT=receipt)
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(receipt.read_text(), 'user changed receipt')
         self.assertEqual((root/'nested/app.py').read_text(), 'old')
@@ -120,10 +120,10 @@ Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$F
     def test_incomplete_rollback_retains_real_old_files_and_user_target(self):
         root, _, path, plan = self.owned_plan()
         body = '''function Copy-Item {
-[IO.File]::WriteAllText($env:T8_TARGET,'concurrent user file')
+[IO.File]::WriteAllText($env:Strata_TARGET,'concurrent user file')
 throw 'controlled copy failure'
 }'''
-        result = self.wrapper(path, body, T8_TARGET=root/'nested/app.py')
+        result = self.wrapper(path, body, Strata_TARGET=root/'nested/app.py')
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual((root/'nested/app.py').read_text(), 'concurrent user file')
         self.assertEqual((Path(plan['backup'])/'nested/app.py').read_text(), 'old')

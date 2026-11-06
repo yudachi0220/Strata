@@ -11,18 +11,18 @@ from tools import build_windows_launcher as builder
 ROOT=Path(__file__).resolve().parents[1]
 RUNTIME=ROOT/'runtime/python'
 
-@unittest.skipUnless(os.name=='nt' and (ROOT/'Strata-T8.exe').is_file() and (RUNTIME/'python.exe').is_file(),
+@unittest.skipUnless(os.name=='nt' and (ROOT/'Strata.exe').is_file() and (RUNTIME/'python.exe').is_file(),
                      'Built Windows EXE and embedded runtime required')
 class WindowsLauncher(unittest.TestCase):
     def setUp(self):
-        self.temp=tempfile.TemporaryDirectory(prefix='T8 EXE 中文 & 空格 ')
+        self.temp=tempfile.TemporaryDirectory(prefix='Strata EXE 中文 & 空格 ')
         self.addCleanup(self.temp.cleanup)
         self.root=Path(self.temp.name)
         runtime=self.root/'runtime/python';runtime.mkdir(parents=True)
         for path in RUNTIME.iterdir():
             if path.is_file() and (path.suffix.lower() in ('.exe','.dll','.pyd','.zip','._pth')):
                 shutil.copy2(path,runtime/path.name)
-        shutil.copy2(ROOT/'Strata-T8.exe',self.root/'Strata-T8.exe')
+        shutil.copy2(ROOT/'Strata.exe',self.root/'Strata.exe')
         (self.root/'portable.py').write_text('''import json,os,sys
 from pathlib import Path
 Path('argv.json').write_text(json.dumps({'argv':sys.argv[1:],'python':sys.executable,
@@ -33,7 +33,7 @@ raise SystemExit(7 if '--fixture-fail' in sys.argv else 0)
 
     def run_exe(self,*args):
         env={**os.environ,'PYTHONHOME':'X:/not-a-python','PYTHONPATH':'X:/not-packages'}
-        return subprocess.run([str(self.root/'Strata-T8.exe'),*args],cwd=ROOT,env=env,
+        return subprocess.run([str(self.root/'Strata.exe'),*args],cwd=ROOT,env=env,
             stdin=subprocess.DEVNULL,capture_output=True,timeout=15)
 
     def receipt(self):
@@ -69,6 +69,6 @@ raise SystemExit(7 if '--fixture-fail' in sys.argv else 0)
     def test_build_record_and_static_dependencies_match_the_current_source(self):
         self.assertTrue(builder.verify(ROOT)['static_runtime'])
         from tools.hip.dll_closure import pe_imports
-        dependencies=pe_imports(ROOT/'Strata-T8.exe')
+        dependencies=pe_imports(ROOT/'Strata.exe')
         self.assertTrue(dependencies)
         self.assertFalse(any(name.lower().startswith(('vcruntime','msvcp')) for name in dependencies),dependencies)

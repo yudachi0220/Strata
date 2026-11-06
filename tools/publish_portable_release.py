@@ -80,7 +80,7 @@ def audit_deepseek_vendor(receipt, descriptor, listed):
     signing.verify_bytes(signing.load_trusted_keys(environ={}),
                          engine_component.signing_payload(component.raw), component.signature)
     for relative, digest, size in component.files:
-        if relative == 'BUILD.json':  # T8 adds provenance to this metadata only.
+        if relative == 'BUILD.json':  # Strata adds provenance to this metadata only.
             continue
         entry = listed.get('engine-dsv41/'+relative, {})
         if entry.get('sha256') != digest or entry.get('size') != size:
@@ -165,7 +165,7 @@ def audit_archive(archive, checksum, meta, head, edition, *, root=ROOT):
                                   root=root, verify_artifacts=False, require_native_source=True)
             if engines[directory] != build:
                 raise ValueError('Engine manifest differs from its packaged BUILD.json')
-            native = build.get('t8_native_build')
+            native = build.get('strata_native_build')
             if native is not None:
                 if command(root, ['git', 'merge-base', '--is-ancestor', native['source_commit'], head], check=False).returncode:
                     raise ValueError('Native build source commit is not part of the tested release history')
@@ -386,7 +386,7 @@ def _publish_verified_assets(root, meta, head, assets, digests=None, *, componen
         check_uploaded_assets(release)
     if release is None:
         command(root, ['gh', 'release', 'create', tag, '--repo', repository, '--draft', '--target', head,
-                       '--title', 'Strata-T8 '+meta['version'], '--notes-file', str(Path(root)/'RELEASE-NOTES.md')])
+                       '--title', 'Strata '+meta['version'], '--notes-file', str(Path(root)/'RELEASE-NOTES.md')])
     # A draft made by a failed earlier run can still name an older SHA/branch.
     # Rebind it explicitly before any upload, including a newly created draft.
     command(root, ['gh', 'release', 'edit', tag, '--repo', repository, '--draft=true', '--target', head])

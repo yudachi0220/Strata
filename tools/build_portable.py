@@ -32,20 +32,20 @@ DOCS = (
     'QWEN36.md', 'EXPERTDEC.md', 'QSAROWS.md',
     'COMMUNITY_BENCHMARKS.md', 'INTEL.md', 'INTEL_ARC.md',
     'VRAM_ELASTIC.md', 'LLAMA_SWAP.md', 'RESEARCH_RUNS.md', 'LOGIT_BIAS.md',
-    'UPDATING-T8.md', 'COMFYUI-T8.md', 'VALIDATION-T8.md', 'VALIDATION-COMFYUI-T8.md', 'AUDIT-20-T8.md',
-    'AUDIT-20-ROUND2-T8.md', 'AUDIT-20-ROUND3-T8.md', 'AUDIT-20-ROUND4-T8.md',
-    'AUDIT-20-ROUND5-T8.md', 'AUDIT-20-ROUND6-T8.md', 'AUDIT-20-ROUND7-T8.md', 'AUDIT-20-ROUND8-T8.md',
-    'VALIDATION-UPSTREAM-0140-T8.md',
-    'VALIDATION-UPSTREAM-01402-T8.md',
-    'VALIDATION-UPSTREAM-01404-T8.md',
-    'VALIDATION-UPSTREAM-0142-T8.md',
-    'VALIDATION-UPSTREAM-01441-T8.md',
-    'VALIDATION-UPSTREAM-0145-T8.md',
+    'UPDATING.md', 'COMFYUI.md', 'VALIDATION.md', 'VALIDATION-COMFYUI.md', 'AUDIT-20.md',
+    'AUDIT-20-ROUND2.md', 'AUDIT-20-ROUND3.md', 'AUDIT-20-ROUND4.md',
+    'AUDIT-20-ROUND5.md', 'AUDIT-20-ROUND6.md', 'AUDIT-20-ROUND7.md', 'AUDIT-20-ROUND8.md',
+    'VALIDATION-UPSTREAM-0140.md',
+    'VALIDATION-UPSTREAM-01402.md',
+    'VALIDATION-UPSTREAM-01404.md',
+    'VALIDATION-UPSTREAM-0142.md',
+    'VALIDATION-UPSTREAM-01441.md',
+    'VALIDATION-UPSTREAM-0145.md',
     'VIDEO-ANALYSIS.zh-CN.md',
-    'VALIDATION-VIDEO-T8.md',
+    'VALIDATION-VIDEO.md',
     'MODEL-SETUP.zh-CN.md',
     'VIDEO-SPEECH.zh-CN.md',
-    'VALIDATION-VIDEO-SPEECH-T8.md',
+    'VALIDATION-VIDEO-SPEECH.md',
     'VIDEO-PROGRESS.zh-CN.md',
     'COMPONENT-UPDATES.zh-CN.md',
     'QUANTS.md',
@@ -174,7 +174,7 @@ def main():
     (TARGET/'features.json').write_text(json.dumps(features, indent=2), encoding='utf-8')
     shutil.copy2(ROOT/'START-PORTABLE.bat', TARGET/'START-HERE.bat')
     if features.get('portable_exe_launcher'):
-        for name in ('Strata-T8.exe','LAUNCHER-BUILD.json'):
+        for name in ('Strata.exe','LAUNCHER-BUILD.json'):
             shutil.copy2(ROOT/name,TARGET/name)
     shutil.copy2(ROOT/'UPDATE-PORTABLE.bat', TARGET/'UPDATE.bat')
     for file in ['README-UPSTREAM.md']:

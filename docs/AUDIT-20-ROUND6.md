@@ -1,6 +1,6 @@
 # 第六组 20 轮联合检查（2026-10-06）
 
-整合包基线 `0.1.39-t8.12`、提交 `a9318b9`；节点基线 `1.0.4`、提交 `83d0286`。本组重新设置 20 个检查目标，不计入前五组或重复回归。主审负责 R01–R09，配置和更新子 Agent 分别负责 R10–R14、R15–R20；另一子 Agent 完成节点的独立 20 项检查，并交叉审查修复。
+整合包基线 `0.1.39`、提交 `a9318b9`；节点基线 `1.0.4`、提交 `83d0286`。本组重新设置 20 个检查目标，不计入前五组或重复回归。主审负责 R01–R09，配置和更新子 Agent 分别负责 R10–R14、R15–R20；另一子 Agent 完成节点的独立 20 项检查，并交叉审查修复。
 
 | 轮次 | 新检查目标、发现与处理 | 验证 |
 | --- | --- | --- |
@@ -25,7 +25,7 @@
 | R19 | 新同步失败或 no-op 后仍留旧冲突描述符，工作流可能推旧分支；每次调用先清理自有描述符 | 实际 Git/失败入口；拒绝链接诊断路径 |
 | R20 | 不完整稳定 tag、tag/CMake 不一致和上游版本回退；完整版本语法及一致性检查 | 临时真实 Git，失败恢复 metadata 和 README |
 
-20 个目标不等于 20 个独立 BUG。同一根因的反例合并记录；R09 为正向兼容性检查。工具 Schema 检查仅覆盖本地模板和解析器消费的结构，不宣称对工具输入执行完整 JSON Schema 校验。[节点第六组报告](https://github.com/T8mars/Comfyui-Strata-T8/blob/main/docs/AUDIT-20-ROUND6-NODES.md) 单独记录节点侧的 20 个目标。
+20 个目标不等于 20 个独立 BUG。同一根因的反例合并记录；R09 为正向兼容性检查。工具 Schema 检查仅覆盖本地模板和解析器消费的结构，不宣称对工具输入执行完整 JSON Schema 校验。[节点第六组报告](https://github.com/yudachi0220/Comfyui-Strata/blob/main/docs/AUDIT-20-ROUND6-NODES.md) 单独记录节点侧的 20 个目标。
 
 ## 基线与回归证据
 
@@ -46,9 +46,9 @@ ComfyUI 0.38.0 / Torch 2.7.0+cu128 / RTX 4060 Ti 16GB / 128GB RAM / DreamShaper 
 
 ## 正式发行核对
 
-最终源码 `d0a3c5ab0e1775583aba7a7b15c79d6b502f5947` 的[源码 CI](https://github.com/T8mars/Strata-T8/actions/runs/37470044887) 成功：528/188/258 例。源码 CI 没有嵌入式运行库，其中 5 个运行库用例明确跳过；[正式发行构建](https://github.com/T8mars/Strata-T8/actions/runs/37470047582) 安装真实运行库后，同一列表 **528/188/258 例全部通过，无跳过**。
+最终源码 `d0a3c5ab0e1775583aba7a7b15c79d6b502f5947` 的[源码 CI](https://github.com/yudachi0220/Strata/actions/runs/37470044887) 成功：528/188/258 例。源码 CI 没有嵌入式运行库，其中 5 个运行库用例明确跳过；[正式发行构建](https://github.com/yudachi0220/Strata/actions/runs/37470047582) 安装真实运行库后，同一列表 **528/188/258 例全部通过，无跳过**。
 
-[整合包 0.1.39-t8.13](https://github.com/T8mars/Strata-T8/releases/tag/v0.1.39-t8.13) 已正式发布并为 latest。清单绑定上述提交；构建端核对完整文件 SHA256 和 ZIP CRC。
+[整合包 0.1.39](https://github.com/yudachi0220/Strata/releases/tag/v0.1.39) 已正式发布并为 latest。清单绑定上述提交；构建端核对完整文件 SHA256 和 ZIP CRC。
 
 | 发行包 | 字节数 | 文件数（不计清单） | ZIP SHA256 |
 | --- | ---: | ---: | --- |
@@ -59,8 +59,8 @@ ComfyUI 0.38.0 / Torch 2.7.0+cu128 / RTX 4060 Ti 16GB / 128GB RAM / DreamShaper 
 
 最终提交的本机文字推理返回 STRATA_OK，22.19s；视觉正确识别红圆、蓝方块和测试文字，5.16s。引擎已卸载，HTTP 在 `127.0.0.1:8082` 保持在线。三个 GPU 流程的 8 份相关功能源码 SHA256 与当前文件匹配。
 
-[节点 1.0.5](https://github.com/T8mars/Comfyui-Strata-T8/releases/tag/v1.0.5) 源码 `0452eb109136fe0c1958d5133612a5af7f31df0e`，[Windows/Linux CI](https://github.com/T8mars/Comfyui-Strata-T8/actions/runs/37469986731) 及[官方发布工作流](https://github.com/T8mars/Comfyui-Strata-T8/actions/runs/37469987350) 成功。Windows 188 例全执行，Linux 188 例中明确跳过 1 个 Windows 专属用例。GitHub ZIP SHA256 `71717f623abebe949b72164ab8a378ab3d66474cd329cd1c6adc07eb843b47d8`，Registry ZIP SHA256 `ea72c2668725d6fa0de39eb17ff8f5ec35690c7ac41ddcbb1147308aeba743b9`；代码逐字节匹配发布提交，10 个节点可导入，没有模型或个人档案。
+[节点 1.0.5](https://github.com/yudachi0220/Comfyui-Strata/releases/tag/v1.0.5) 源码 `0452eb109136fe0c1958d5133612a5af7f31df0e`，[Windows/Linux CI](https://github.com/yudachi0220/Comfyui-Strata/actions/runs/37469986731) 及[官方发布工作流](https://github.com/yudachi0220/Comfyui-Strata/actions/runs/37469987350) 成功。Windows 188 例全执行，Linux 188 例中明确跳过 1 个 Windows 专属用例。GitHub ZIP SHA256 `71717f623abebe949b72164ab8a378ab3d66474cd329cd1c6adc07eb843b47d8`，Registry ZIP SHA256 `ea72c2668725d6fa0de39eb17ff8f5ec35690c7ac41ddcbb1147308aeba743b9`；代码逐字节匹配发布提交，10 个节点可导入，没有模型或个人档案。
 
-Publisher `t8star`；[Registry 版本接口](https://api.comfy.org/nodes/strata-t8/versions/1.0.5) 最终核查为 `NodeVersionStatusPending`，CDN 包可取得。审核期间使用 GitHub Release，未把提交成功说成 Manager 已可检索。
+Publisher `yudachi0220`；[Registry 版本接口](https://api.comfy.org/nodes/strata/versions/1.0.5) 最终核查为 `NodeVersionStatusPending`，CDN 包可取得。审核期间使用 GitHub Release，未把提交成功说成 Manager 已可检索。
 
 证据位于忽略目录 `.portable-build/`：`audit6-cloud-root-ci.log`、`audit6-cloud-node-ci.log`、`audit6-cloud-node-publish.log`、`cloud-v13-release-success.log`、`release-v13-published.json`、`node-v105-published-verification.json`、`registry-v105-final-status.json`、`deployed-v13-results.json` 和前述回归/GPU 日志。本段是发布后的文档补充，没有替换不可变版本及资产。

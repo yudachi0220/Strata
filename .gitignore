@@ -77,7 +77,7 @@ build-vision-cuda12.bat
 /portable-settings.json
 /Strata-data/
 /VERIFY-RESULTS.json
-/Strata-T8.exe
+/Strata.exe
 /LAUNCHER-BUILD.json
 /DEPLOYMENT.zh-CN.md
 /STOP-LOCAL.bat
@@ -85,7 +85,7 @@ build-vision-cuda12.bat
 /.portable-update*/
 /vision/weights/
 /.portable-temp/
-/comfyui-strata-t8/.local/
+/comfyui-strata/.local/
 
 # Local planning only (case-insensitive spelling on Windows).
 **/[Rr][Oo][Aa][Dd][Mm][Aa][Pp].[Mm][Dd]

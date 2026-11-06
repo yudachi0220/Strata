@@ -87,7 +87,7 @@ def bootstrap_engines(meta, version, cache, destination):
     cache, destination = Path(cache), Path(destination)
     cache.mkdir(parents=True, exist_ok=True)
     # Only the metadata API receives the runner's token; asset requests never carry it.
-    headers = {'User-Agent': 'Strata-T8-build'}
+    headers = {'User-Agent': 'Strata-build'}
     if os.environ.get('GH_TOKEN'):
         headers['Authorization'] = 'Bearer ' + os.environ['GH_TOKEN']
     tag = identity['upstream_release_tag']

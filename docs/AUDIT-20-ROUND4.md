@@ -1,6 +1,6 @@
 # 第四组 20 轮联合检查（2026-10-06）
 
-整合包基线为 `0.1.39-t8.10`，主仓提交 `5c8e53c019d4d3fd45ce6aebefa8585cb5595f69`；节点基线为 `1.0.2`。本组新增 20 个不同检查目标，前三组及重复完整回归不计轮数。主审负责服务、配置与模型准备，两名独立子 Agent 分别审查节点和更新器，并交叉检查变更。
+整合包基线为 `0.1.39`，主仓提交 `5c8e53c019d4d3fd45ce6aebefa8585cb5595f69`；节点基线为 `1.0.2`。本组新增 20 个不同检查目标，前三组及重复完整回归不计轮数。主审负责服务、配置与模型准备，两名独立子 Agent 分别审查节点和更新器，并交叉检查变更。
 
 | 轮次 | 新检查目标、发现及处理 | 验证 |
 | --- | --- | --- |
@@ -27,7 +27,7 @@
 
 新增 `tools/test_portable_round4.py` 20 例、`tools/test_portable_update_round4.py` 22 例。独立结构化模块的既有 8 例也加入完整 CI、同步和发行测试列表，补足直接输出校验覆盖。42 个新增用例及 8 个既有用例均包含在完整测试数中，不重复累计。
 
-[节点第四组 20 轮报告](https://github.com/T8mars/Comfyui-Strata-T8/blob/main/docs/AUDIT-20-ROUND4-NODES.md) 记录 9 类修复、26 个新增用例及 131 例完整回归。20 个目标不等于 20 个 BUG；草案或同一事务的多个反例按根因合并。
+[节点第四组 20 轮报告](https://github.com/yudachi0220/Comfyui-Strata/blob/main/docs/AUDIT-20-ROUND4-NODES.md) 记录 9 类修复、26 个新增用例及 131 例完整回归。20 个目标不等于 20 个 BUG；草案或同一事务的多个反例按根因合并。
 
 ## 验证方法与范围
 
@@ -56,9 +56,9 @@ Windows 文件锁导致无法恢复时会明确报告未恢复的文件；配置
 
 ## 最终源码与正式发行
 
-提交 `9e20fe5ab53b601646373407c6dd02a8172e0fbe` 的 [源码 CI](https://github.com/T8mars/Strata-T8/actions/runs/37452989952) 通过服务/整合包 399 例、独立节点 131 例、setup 258 例。源码 CI 没有嵌入式运行库，399 例中 5 例明确跳过；正式发行构建安装真实运行库后执行同一列表。
+提交 `9e20fe5ab53b601646373407c6dd02a8172e0fbe` 的 [源码 CI](https://github.com/yudachi0220/Strata/actions/runs/37452989952) 通过服务/整合包 399 例、独立节点 131 例、setup 258 例。源码 CI 没有嵌入式运行库，399 例中 5 例明确跳过；正式发行构建安装真实运行库后执行同一列表。
 
-[整合包 0.1.39-t8.11](https://github.com/T8mars/Strata-T8/releases/tag/v0.1.39-t8.11) 的 [发行构建](https://github.com/T8mars/Strata-T8/actions/runs/37453418848) 运行服务/整合包 399 例、节点集成 131 例、setup 258 例全部通过，无跳过；完整文件 SHA256 与 ZIP CRC 检查后正式发布。
+[整合包 0.1.39](https://github.com/yudachi0220/Strata/releases/tag/v0.1.39) 的 [发行构建](https://github.com/yudachi0220/Strata/actions/runs/37453418848) 运行服务/整合包 399 例、节点集成 131 例、setup 258 例全部通过，无跳过；完整文件 SHA256 与 ZIP CRC 检查后正式发布。
 
 | 发行包 | 字节数 | 文件数（不计清单） | ZIP SHA256 |
 | --- | ---: | ---: | --- |
@@ -69,8 +69,8 @@ Windows 文件锁导致无法恢复时会明确报告未恢复的文件；配置
 
 最终提交的本机文字推理返回 STRATA_OK，16.88s；视觉正确识别红圆、蓝方块及测试文字，3.81s。完成后卸载文字和视觉引擎，HTTP 在 `127.0.0.1:8082` 保持在线。三个绘图流程的六份相关功能源码 SHA256 与最终源码逐一匹配。
 
-[节点 1.0.3](https://github.com/T8mars/Comfyui-Strata-T8/releases/tag/v1.0.3) 源码为 `4203df3caef5495d998a8a9d6f9721c12a885cdc`。[Windows/Linux CI](https://github.com/T8mars/Comfyui-Strata-T8/actions/runs/37452842843) 通过；Windows 131 例全部执行，Linux 131 例中明确跳过 1 个 Windows 专属用例。[官方发布工作流](https://github.com/T8mars/Comfyui-Strata-T8/actions/runs/37452843332) 成功。GitHub ZIP SHA256 为 `ea7a8b4b7550bc70f104c8d54f00fa0088963cc36211eb52c327616bf0e1a155`，Registry ZIP SHA256 为 `64703daad0c015232710bb96c23a692cf0032f066e015145fed8827f3d296f93`；两份包代码逐字节匹配发布提交，10 个节点可导入，没有模型或个人档案。
+[节点 1.0.3](https://github.com/yudachi0220/Comfyui-Strata/releases/tag/v1.0.3) 源码为 `4203df3caef5495d998a8a9d6f9721c12a885cdc`。[Windows/Linux CI](https://github.com/yudachi0220/Comfyui-Strata/actions/runs/37452842843) 通过；Windows 131 例全部执行，Linux 131 例中明确跳过 1 个 Windows 专属用例。[官方发布工作流](https://github.com/yudachi0220/Comfyui-Strata/actions/runs/37452843332) 成功。GitHub ZIP SHA256 为 `ea7a8b4b7550bc70f104c8d54f00fa0088963cc36211eb52c327616bf0e1a155`，Registry ZIP SHA256 为 `64703daad0c015232710bb96c23a692cf0032f066e015145fed8827f3d296f93`；两份包代码逐字节匹配发布提交，10 个节点可导入，没有模型或个人档案。
 
-Publisher 为 `t8star`。[Registry 版本接口](https://api.comfy.org/nodes/strata-t8/versions/1.0.3) 本次核查状态为 `NodeVersionStatusPending`；CDN 包可取得，审核期间使用 GitHub Release 安装。发布成功不等于确认 Manager 已可检索。
+Publisher 为 `yudachi0220`。[Registry 版本接口](https://api.comfy.org/nodes/strata/versions/1.0.3) 本次核查状态为 `NodeVersionStatusPending`；CDN 包可取得，审核期间使用 GitHub Release 安装。发布成功不等于确认 Manager 已可检索。
 
 本机证据：`.portable-build/cloud-v11-ci-success.log`、`cloud-v11-release-success.log`、`release-v11-published.json`、`node-v103-published-verification.json`、`registry-v103-final-status.json`、`deployed-v11-results.json` 和前述回归/GPU 日志。原始后台日志、API key、个人档案和模型未纳入公开仓库。本段追加于正式发布后，未替换已经发布的版本或资产。

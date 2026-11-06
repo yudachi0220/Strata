@@ -22,7 +22,7 @@ class SetupPage(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(prefix='Strata UI 中文 空格 ')
         self.root = Path(self.temp.name)/'app'
         self.root.mkdir()
-        (self.root/'meta.json').write_text(json.dumps({'version':'0.1.42-t8.4'}),encoding='utf-8')
+        (self.root/'meta.json').write_text(json.dumps({'version':'0.1.42'}),encoding='utf-8')
         (self.root/'model-sources.json').write_bytes((ui.ROOT/'model-sources.json').read_bytes())
         web = self.root/'serve/web'
         web.mkdir(parents=True)
@@ -37,7 +37,7 @@ class SetupPage(unittest.TestCase):
         self.thread = threading.Thread(target=self.http.serve_forever,daemon=True)
         self.thread.start()
         self.fingerprint = {'app':str(self.root),'data':str(self.root.parent/'Strata-data'),
-                            'gpu':[0],'ram':128,'version':'0.1.42-t8.4','edition':'Portable-NoModels'}
+                            'gpu':[0],'ram':128,'version':'0.1.42','edition':'Portable-NoModels'}
         self.gpu = mock.patch.object(portable,'fingerprint',return_value=self.fingerprint)
         self.gpu.start()
 
@@ -287,8 +287,8 @@ HTTPServer(('127.0.0.1',int(sys.argv[1])),H).serve_forever()
         self.assertIsNone(self.request('/api/status')[2]['api_connection'])
 
     def update_release(self):
-        name = 'Strata-T8-0.1.42-t8.7-Windows-x64-Portable-NoModels.zip'
-        return {'tag_name':'v0.1.42-t8.7','assets':[{'name':name},{'name':name+'.sha256'}]}
+        name = 'Strata-0.1.42-Windows-x64-Portable-NoModels.zip'
+        return {'tag_name':'v0.1.42','assets':[{'name':name},{'name':name+'.sha256'}]}
 
     def wait_update(self):
         deadline = time.monotonic()+5
@@ -303,7 +303,7 @@ HTTPServer(('127.0.0.1',int(sys.argv[1])),H).serve_forever()
             self.wait_update()
             update = self.request('/api/status')[2]['update']
             self.assertTrue(update['available'])
-            latest.assert_called_once_with('T8mars/Strata-T8',timeout=5)
+            latest.assert_called_once_with('yudachi0220/Strata',timeout=5)
             stop.assert_not_called()
         with mock.patch('tools.portable_update.latest_release',side_effect=OSError('offline')), \
              mock.patch.object(self.app,'stop_backend') as stop:
@@ -324,7 +324,7 @@ HTTPServer(('127.0.0.1',int(sys.argv[1])),H).serve_forever()
             stop.assert_not_called()
 
     def test_update_missing_asset_or_invalid_version_cannot_be_started(self):
-        for release in ({'tag_name':'v0.1.42-t8.7','assets':[]}, {'tag_name':'bogus','assets':[]}):
+        for release in ({'tag_name':'v0.1.42','assets':[]}, {'tag_name':'bogus','assets':[]}):
             with mock.patch('tools.portable_update.latest_release',return_value=release):
                 self.app.check_updates(); self.wait_update()
                 self.assertEqual(self.app.update['state'],'error')
@@ -366,7 +366,7 @@ HTTPServer(('127.0.0.1',int(sys.argv[1])),H).serve_forever()
             self.assertEqual(self.request('/api/status')[0],200)
             args=launch.call_args.args[0]
             helper=Path(args[args.index('-File')+1])
-            self.assertTrue(helper.parent.name.startswith('Strata-T8-ui-update-'))
+            self.assertTrue(helper.parent.name.startswith('Strata-ui-update-'))
             helper.unlink(); helper.parent.rmdir()
 
     def test_updating_blocks_overlapping_model_mutations(self):
@@ -389,7 +389,7 @@ HTTPServer(('127.0.0.1',int(sys.argv[1])),H).serve_forever()
             self.assertIn('timed out',self.app.job['error'])
             self.assertEqual(self.request('/api/status')[0],200)
             args=launch.call_args.args[0];helper=Path(args[args.index('-File')+1])
-            self.assertTrue(helper.parent.name.startswith('Strata-T8-ui-update-'))
+            self.assertTrue(helper.parent.name.startswith('Strata-ui-update-'))
             helper.unlink();helper.parent.rmdir()
 
     def test_static_files_have_local_content_security_headers(self):

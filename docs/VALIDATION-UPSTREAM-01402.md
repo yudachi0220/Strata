@@ -1,10 +1,10 @@
-# Strata-T8 0.1.40-t8.2 验证
+# Strata 0.1.40 验证
 
-同步上游 [v0.1.40.2](https://github.com/Niko1221/Strata/releases/tag/v0.1.40.2)，源码 `e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a`，CUDA/HIP 引擎均为 `0.1.40.2`。发行版本保持 `0.1.40-t8.2`，节点保持 `1.0.6` 和 Protocol 1。
+同步上游 [v0.1.40.2](https://github.com/Niko1221/Strata/releases/tag/v0.1.40.2)，源码 `e8ca9afd03d839d4f8dbbe82dffce7f8a3bafd7a`，CUDA/HIP 引擎均为 `0.1.40.2`。发行版本保持 `0.1.40`，节点保持 `1.0.6` 和 Protocol 1。
 
 ## 代码与依赖
 
-包含上游引擎、服务、安装器、实验 Intel Linux 后端及测试更新。T8 保留严格 JSON/工具参数校验、取消清理、双引擎资源释放和更新回滚。新增分块 HTTP 解码拒绝 Content-Length 与 Transfer-Encoding 同时出现、异常块大小和未终止的 trailers。关闭工具恢复时拒绝一层 wrapper 中混合多个函数；需要宽松恢复时仍须显式启用。
+包含上游引擎、服务、安装器、实验 Intel Linux 后端及测试更新。Strata 保留严格 JSON/工具参数校验、取消清理、双引擎资源释放和更新回滚。新增分块 HTTP 解码拒绝 Content-Length 与 Transfer-Encoding 同时出现、异常块大小和未终止的 trailers。关闭工具恢复时拒绝一层 wrapper 中混合多个函数；需要宽松恢复时仍须显式启用。
 
 嵌入式 Python 3.12.10 的依赖检查通过。本机严格门槛完成 1190 项应用（476.000 秒）、397 项安装器、219 项独立节点和 8 项实际 tokenizer 测试，均无失败、错误或跳过。正式 ZIP 和发布提交由发行审计再次核对。Linux Docker 入口三项测试单独执行，不计入 Windows 回归。
 

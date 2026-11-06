@@ -4,6 +4,6 @@ cd /d "%~dp0"
 set "PYTHONHOME="
 set "PYTHONPATH="
 "%~dp0runtime\python\python.exe" -X utf8 -u "%~dp0portable.py" import %*
-set "T8_EXIT_CODE=%ERRORLEVEL%"
+set "Strata_EXIT_CODE=%ERRORLEVEL%"
 pause
-exit /b %T8_EXIT_CODE%
+exit /b %Strata_EXIT_CODE%

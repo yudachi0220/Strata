@@ -112,8 +112,8 @@ PAYLOAD = (
 TOOLS_SUBSET = (
     "strata_tokenizer.py",
     "gguf_reader.py",
-    "portable_io.py",     # T8 config and ASR settings: local atomic file writes
-    "strata_video.py",    # T8 serving imports the local video contract (PyAV remains lazy)
+    "portable_io.py",     # Strata config and ASR settings: local atomic file writes
+    "strata_video.py",    # Strata serving imports the local video contract (PyAV remains lazy)
     "dflash2_pack.py",     # the DFlash2 drafter: strata_control/drafting_fetch.py packs the download with it (numpy only)
 )
 

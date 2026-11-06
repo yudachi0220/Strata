@@ -25,7 +25,7 @@ def index_name(version,edition):
     from portable_version import version_key
     from portable_weights import weight_declaration
     version_key(version);weight_declaration(edition)
-    return f'Components-Strata-T8-{version}-Windows-x64-{edition}.json'
+    return f'Components-Strata-{version}-Windows-x64-{edition}.json'
 
 
 def file_hash(path, progress=None):
@@ -59,7 +59,7 @@ def build(package,output):
         entries=sorted((e for e in manifest['files'] if group(e['path'])==identity),key=lambda e:e['path'])
         if not entries:continue
         identity_hash=hashlib.sha256(json.dumps(entries,sort_keys=True,separators=(',',':')).encode()).hexdigest()
-        asset=f'Strata-T8-component-{identity}-{identity_hash[:24]}.zip'
+        asset=f'Strata-component-{identity}-{identity_hash[:24]}.zip'
         target=output/asset
         with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=6) as archive:
             for entry in entries:
@@ -97,7 +97,7 @@ def validate(index,root):
         if (not isinstance(component,dict) or set(component)!={'id','asset','size','sha256','files'}
                 or component['id'] not in GROUPS or component['id'] in seen
                 or not isinstance(component['asset'],str)
-                or not re.fullmatch(r'Strata-T8-component-[a-z-]+-[0-9a-f]{24}\.zip',component['asset'])
+                or not re.fullmatch(r'Strata-component-[a-z-]+-[0-9a-f]{24}\.zip',component['asset'])
                 or type(component['size']) is not int or not 0<component['size']<=MAX_ARCHIVE
                 or not isinstance(component['sha256'],str) or not re.fullmatch('[0-9a-f]{64}',component['sha256'])
                 or not isinstance(component['files'],list) or not component['files']):

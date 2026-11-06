@@ -655,7 +655,7 @@ class ModelSetup:
             try:
                 from tools.portable_update import latest_release
                 from tools.portable_version import version_key, archive_name
-                release = latest_release('T8mars/Strata-T8', timeout=5)
+                release = latest_release('yudachi0220/Strata', timeout=5)
                 latest = release['tag_name'].removeprefix('v')
                 newer = version_key(latest) > version_key(self.version)
                 meta = json.loads((self.root/'meta.json').read_text(encoding='utf-8'))
@@ -698,7 +698,7 @@ class ModelSetup:
                     read_receipt(self.root,restore_id)
                     if self.closed.is_set():return
                 source = _regular(self.root/'tools/gui_portable_update.ps1', self.root)
-                temporary = Path(tempfile.mkdtemp(prefix='Strata-T8-ui-update-')).resolve()
+                temporary = Path(tempfile.mkdtemp(prefix='Strata-ui-update-')).resolve()
                 if temporary.is_relative_to(self.root):
                     raise SetupError('更新工作目录必须位于程序目录外。')
                 helper = temporary/'update.ps1'
@@ -718,7 +718,7 @@ class ModelSetup:
                 import psutil
                 try:
                     parent = psutil.Process(os.getpid()).parent()
-                    if parent and Path(parent.exe()).resolve() == self.root/'Strata-T8.exe':
+                    if parent and Path(parent.exe()).resolve() == self.root/'Strata.exe':
                         arguments.extend(['-LauncherId',str(parent.pid)])
                 except (OSError,psutil.Error):
                     pass

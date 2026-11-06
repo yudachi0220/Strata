@@ -10,7 +10,7 @@ from portable_version import archive_name
 
 class WeightPolicy(unittest.TestCase):
     def manifest(self):
-        return {'version': '0.1.39-t8.5', 'edition': 'VisionReady-NoMainModel', 'models_included': True,
+        return {'version': '0.1.39', 'edition': 'VisionReady-NoMainModel', 'models_included': True,
                 'weights': {'main': False, 'mtp': False, 'vision': True},
                 'files': [{'path': VISION_PATH, 'size': VISION_SIZE, 'sha256': VISION_SHA256}]}
 
@@ -34,10 +34,10 @@ class WeightPolicy(unittest.TestCase):
             validate_manifest(Path.cwd(), manifest, verify=False)
 
     def test_legacy_and_vision_asset_names_are_distinct(self):
-        self.assertIn('Portable-NoModels', archive_name('0.1.39-t8.5'))
-        self.assertIn('VisionReady-NoMainModel', archive_name('0.1.39-t8.5', 'VisionReady-NoMainModel'))
+        self.assertIn('Portable-NoModels', archive_name('0.1.39'))
+        self.assertIn('VisionReady-NoMainModel', archive_name('0.1.39', 'VisionReady-NoMainModel'))
         with self.assertRaises(ValueError):
-            archive_name('0.1.39-t8.5', 'any-model')
+            archive_name('0.1.39', 'any-model')
 
 
 if __name__ == '__main__':

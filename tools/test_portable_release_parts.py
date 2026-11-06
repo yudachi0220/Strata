@@ -12,7 +12,7 @@ from tools import portable_release_parts as parts
 class Multipart(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory(prefix='Strata 分卷 空格 ');self.addCleanup(self.temp.cleanup)
-        self.archive=Path(self.temp.name)/'Strata-T8-0.2.6-t8.1-Windows-x64-VisionReady-NoMainModel.zip'
+        self.archive=Path(self.temp.name)/'Strata-0.2.6-Windows-x64-VisionReady-NoMainModel.zip'
         self.data=bytes(range(256))*8;self.archive.write_bytes(self.data)
         self.digest=hashlib.sha256(self.data).hexdigest()
         self.record=parts.split(self.archive,part_size=1024)

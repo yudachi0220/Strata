@@ -30,7 +30,7 @@ $value = Microsoft.PowerShell.Management\\New-Item -ItemType $ItemType -Path $Pa
 if ([IO.Path]::GetFileName($Path) -eq 'backup') { [IO.Directory]::CreateDirectory((Join-Path $Path 'app.py')) | Out-Null }
 return $value
 }'''
-        result = self.wrapper(path, body, T8_BACKUP=self.base/'backup')
+        result = self.wrapper(path, body, Strata_BACKUP=self.base/'backup')
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual((root/'app.py').read_text(), 'old')
         self.assertTrue((self.base/'backup/app.py').is_dir())
@@ -43,7 +43,7 @@ $value = Microsoft.PowerShell.Management\\New-Item -ItemType $ItemType -Path $Pa
 if ([IO.Path]::GetFileName($Path) -eq 'backup') { [IO.File]::WriteAllText((Join-Path $Path 'app.py'),'foreign backup') }
 return $value
 }'''
-        result = self.wrapper(path, body, T8_BACKUP=self.base/'backup')
+        result = self.wrapper(path, body, Strata_BACKUP=self.base/'backup')
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual((root/'app.py').read_text(), 'old')
         self.assertEqual((self.base/'backup/app.py').read_text(), 'foreign backup')
@@ -52,13 +52,13 @@ return $value
         root, _, path = self.plan({'app.py': 'old'}, {'app.py': 'new'})
         body = '''function Copy-Item { param([string]$LiteralPath,[string]$Destination)
 if ($LiteralPath.EndsWith('app.py')) {
-  [IO.Directory]::CreateDirectory($env:T8_TARGET) | Out-Null
-  [IO.File]::WriteAllText((Join-Path $env:T8_TARGET 'user.txt'),'user content')
+  [IO.Directory]::CreateDirectory($env:Strata_TARGET) | Out-Null
+  [IO.File]::WriteAllText((Join-Path $env:Strata_TARGET 'user.txt'),'user content')
   throw 'simulated concurrent directory and copy failure'
 }
 Microsoft.PowerShell.Management\\Copy-Item -LiteralPath $LiteralPath -Destination $Destination
 }'''
-        result = self.wrapper(path, body, T8_TARGET=root/'app.py')
+        result = self.wrapper(path, body, Strata_TARGET=root/'app.py')
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         report = json.loads((root/'.portable-update/result.json').read_text(encoding='utf-8-sig'))
         self.assertTrue(report['rollback_errors'], result.stdout)
@@ -71,12 +71,12 @@ Microsoft.PowerShell.Management\\Copy-Item -LiteralPath $LiteralPath -Destinatio
         root, _, path = self.plan({'app.py': 'old'}, {'app.py': 'new'})
         body = '''function Copy-Item { param([string]$LiteralPath,[string]$Destination)
 if ($LiteralPath.EndsWith('app.py')) {
-  [IO.File]::WriteAllText($env:T8_TARGET,'new user file')
+  [IO.File]::WriteAllText($env:Strata_TARGET,'new user file')
   throw 'simulated concurrent file and copy failure'
 }
 Microsoft.PowerShell.Management\\Copy-Item -LiteralPath $LiteralPath -Destination $Destination
 }'''
-        result = self.wrapper(path, body, T8_TARGET=root/'app.py')
+        result = self.wrapper(path, body, Strata_TARGET=root/'app.py')
         self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
         report = json.loads((root/'.portable-update/result.json').read_text(encoding='utf-8-sig'))
         self.assertTrue(report['rollback_errors'], result.stdout)
@@ -115,18 +115,18 @@ class DelayedInstallationIdentity(unittest.TestCase):
 
     def test_delayed_apply_cannot_downgrade_the_installed_version(self):
         root, _, path = self.plan({'app.py': 'old'}, {'app.py': 'new'})
-        self.installed_version(root, '0.1.39-t8.3')
+        self.installed_version(root, '0.1.39')
         self.refused(self.apply(path), root)
-        self.assertEqual(json.loads((root/'meta.json').read_text())['version'], '0.1.39-t8.3')
+        self.assertEqual(json.loads((root/'meta.json').read_text())['version'], '0.1.39')
 
     def test_delayed_apply_same_version_and_edition_is_refused(self):
         root, _, path = self.plan({'app.py': 'old'}, {'app.py': 'new'})
-        self.installed_version(root, '0.1.39-t8.2')
+        self.installed_version(root, '0.1.39')
         self.refused(self.apply(path), root)
 
     def test_installed_metadata_version_must_match_installed_manifest(self):
         root, _, path = self.plan({'app.py': 'old'}, {'app.py': 'new'})
-        (root/'meta.json').write_text(json.dumps({'version': '0.1.39-t8.99'}))
+        (root/'meta.json').write_text(json.dumps({'version': '0.1.39'}))
         self.refused(self.apply(path), root)
 
     def test_installed_metadata_edition_must_match_installed_manifest(self):
@@ -154,9 +154,9 @@ class DelayedInstallationIdentity(unittest.TestCase):
 
     def test_delayed_apply_numeric_revision_order_remains_valid(self):
         root, incoming, path = self.plan({'app.py': 'old'}, {'app.py': 'new'})
-        self.installed_version(root, '0.1.39-t8.9')
+        self.installed_version(root, '0.1.39')
         manifest = json.loads((incoming/'PACKAGE-MANIFEST.json').read_text())
-        meta_path = incoming/'meta.json'; meta = json.loads(meta_path.read_text()); meta['version'] = '0.1.39-t8.10'
+        meta_path = incoming/'meta.json'; meta = json.loads(meta_path.read_text()); meta['version'] = '0.1.39'
         meta_path.write_text(json.dumps(meta)); manifest['version'] = meta['version']
         entry = next(e for e in manifest['files'] if e['path'] == 'meta.json')
         entry.update(size=meta_path.stat().st_size, sha256=hashlib.sha256(meta_path.read_bytes()).hexdigest())
@@ -186,7 +186,7 @@ class PrepareInstallationIdentity(unittest.TestCase):
     def test_prepare_does_not_publish_from_a_mismatched_installed_identity(self):
         root, release, fetch = self.fixture()
         path = root/'PACKAGE-MANIFEST.json'; manifest = json.loads(path.read_text())
-        manifest['version'] = '0.1.39-t8.0'; path.write_text(json.dumps(manifest))
+        manifest['version'] = '0.1.39'; path.write_text(json.dumps(manifest))
         stage = self.base/'stage'; stage.mkdir()
         with mock.patch.object(update, 'fetch', side_effect=fetch), \
              mock.patch.object(update, 'running_processes', return_value=[]), \
@@ -200,7 +200,7 @@ class PrepareInstallationIdentity(unittest.TestCase):
         def advanced(url, destination=None, limit=None):
             result = fetch(url, destination, limit)
             if destination:
-                fixtures.package(root, {'app.py': 'newer', 'obsolete.py': 'old'}, '0.1.39-t8.3')
+                fixtures.package(root, {'app.py': 'newer', 'obsolete.py': 'old'}, '0.1.39')
             return result
         stage = self.base/'stage'; stage.mkdir()
         with mock.patch.object(update, 'fetch', side_effect=advanced), \
@@ -246,18 +246,18 @@ class SharedGitTransactions(unittest.TestCase):
         self.assertEqual(self.config_bytes(), before)
 
     def test_fetch_failure_preserves_the_users_merge_driver(self):
-        self.git(self.repo, 'config', 'merge.t8-keep.driver', 'user-original-command')
+        self.git(self.repo, 'config', 'merge.strata-keep.driver', 'user-original-command')
         before = self.config_bytes()
         with self.assertRaises(subprocess.CalledProcessError):
             upstream.sync(self.repo, str(self.base/'missing'), 'refs/heads/main')
         self.assertEqual(self.config_bytes(), before)
 
-    def test_success_preserves_the_users_merge_driver_and_T8_readme(self):
-        self.git(self.repo, 'config', 'merge.t8-keep.driver', 'false')
+    def test_success_preserves_the_users_merge_driver_and_upstream_readme(self):
+        self.git(self.repo, 'config', 'merge.strata-keep.driver', 'false')
         before = self.config_bytes(); self.advance()
         self.assertTrue(upstream.sync(self.repo, str(self.up), 'refs/heads/main')['changed'])
         self.assertEqual(self.config_bytes(), before)
-        self.assertEqual((self.repo/'README.md').read_text(), 'T8 readme')
+        self.assertEqual((self.repo/'README.md').read_text(), 'Strata readme')
 
     def test_other_fetch_cannot_change_the_commit_selected_for_sync(self):
         other = self.base/'other'
@@ -275,7 +275,7 @@ class SharedGitTransactions(unittest.TestCase):
         self.assertEqual(result['upstream_commit'], expected)
         self.assertTrue((self.repo/'new.py').exists())
         self.assertFalse((self.repo/'other.py').exists())
-        refs = self.git(self.repo, 'for-each-ref', '--format=%(refname)', 'refs/strata-t8')
+        refs = self.git(self.repo, 'for-each-ref', '--format=%(refname)', 'refs/strata')
         self.assertEqual(refs, '')
 
     def test_annotated_release_reports_the_commit_instead_of_tag_object(self):

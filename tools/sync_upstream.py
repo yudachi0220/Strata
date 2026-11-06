@@ -1,4 +1,4 @@
-"""Merge upstream release/main while retaining T8 history and stopping on conflicts."""
+"""Merge upstream release/main while retaining Strata history and stopping on conflicts."""
 from __future__ import annotations
 import argparse
 import json
@@ -155,7 +155,7 @@ def sync(root, url, ref, *, release_assets=None):
         raise RuntimeError('Local planning files must be removed from the Git index before synchronization')
     # FETCH_HEAD is shared with other fetches and linked worktrees. A unique ref
     # keeps this invocation bound to its own fetch without modifying that state.
-    fetched = 'refs/strata-t8/upstream-' + uuid.uuid4().hex
+    fetched = 'refs/strata/upstream-' + uuid.uuid4().hex
     try:
         git(root, 'fetch', '--no-write-fetch-head', '--no-tags', url, ref+':'+fetched)
         commit = git(root, 'rev-parse', fetched+'^{commit}').stdout.strip()
@@ -239,7 +239,7 @@ def sync_fetched(root, commit, ref, *, release_assets=None):
         try:
             merge_target = history_merge_target(root, commit, meta)
             # Scope the keep driver to this merge; never rewrite a user's shared config.
-            merged = git(root, '-c', 'merge.t8-keep.driver=true', 'merge', '--no-ff', '--no-commit', '--no-overwrite-ignore', merge_target, check=False)
+            merged = git(root, '-c', 'merge.strata-keep.driver=true', 'merge', '--no-ff', '--no-commit', '--no-overwrite-ignore', merge_target, check=False)
         except RuntimeError as error:
             merged = subprocess.CompletedProcess([], 1, '', str(error))
         except BaseException:
@@ -275,7 +275,7 @@ def sync_fetched(root, commit, ref, *, release_assets=None):
         old_family = upstream_version_key(meta['upstream_version'])[:3]
         meta['revision'] = meta['revision'] + 1 if old_family == family else 1
         meta['upstream_version'] = version
-        meta['version'] = '.'.join(map(str, family)) + f'-t8.{meta["revision"]}'
+        meta['version'] = '.'.join(map(str, family))
         meta['upstream_commit'] = commit
         meta['engine_version'] = native_version
         if (root/'strata_cli/__init__.py').exists():

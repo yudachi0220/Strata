@@ -53,10 +53,10 @@ def validate_components(components, pins):
 
 
 def extract_verified_component(archive, destination, descriptor):
-    """Verify the vendor tree before T8 changes BUILD.json or replaces executables.
+    """Verify the vendor tree before Strata changes BUILD.json or replaces executables.
 
     The original signed manifest is retained as provenance, not as a signature
-    of our subsequently modified installation. T8's package manifest covers it.
+    of our subsequently modified installation. Strata's package manifest covers it.
     """
     from strata_control import components, engine_component, signing
     archive, destination = Path(archive), Path(destination)
@@ -74,7 +74,7 @@ def extract_verified_component(archive, destination, descriptor):
     if engine_component.verify_signature(manifest) != 'verified':
         raise ValueError('Upstream component signature was not verified')
     engine_component.verify(manifest, full=True)
-    receipt = {'scope': 'original upstream archive before T8 modifications',
+    receipt = {'scope': 'original upstream archive before Strata modifications',
                'archive': descriptor, 'signature_verified': True, 'manifest': manifest.raw}
     (destination/'UPSTREAM-COMPONENT.json').write_text(json.dumps(receipt, indent=2)+'\n', encoding='utf-8')
     (destination/'engine-component.json').unlink()

@@ -1,17 +1,17 @@
-# Strata-T8 Windows 整合包
+# Strata Windows 整合包
 
-**By T8star**
+**By yudachi0220**
 
 内置独立 Python、锁定 Python 依赖、NVIDIA CUDA / AMD HIP 引擎及运行库。无需安装 Python、Git、编译器或 CUDA Toolkit；显卡驱动由电脑提供。VisionReady 包含视觉权重与配置模板，主模型和 MTP 独立分发。
 
 完整运行包较大时，Release 提供分卷。将同版本的全部 `.zip.001` 等分卷、`.parts.json` 和 `ASSEMBLE` 两个文件放在一起，双击 `*-ASSEMBLE.bat` 校验并合成 ZIP。自动更新使用组件，无需手动合并。
 
-DeepSeek 使用独立引擎和模型目录，默认完整质量与文本模式。具备完整视觉塔的 pack 可在运行设置中开启 GPU 图片识别；视频与语音融合使用 Qwen。[DeepSeek 安装与路径](docs/DEEPSEEK-T8.zh-CN.md)。
+DeepSeek 使用独立引擎和模型目录，默认完整质量与文本模式。具备完整视觉塔的 pack 可在运行设置中开启 GPU 图片识别；视频与语音融合使用 Qwen。[DeepSeek 安装与路径](docs/DEEPSEEK.zh-CN.md)。
 
 ## 开始使用
 
 1. 解压到可写的 SSD 目录，不要在压缩包内运行。
-2. 双击 **Strata-T8.exe**，浏览器直接打开模型设置页；尚未提供模型也能进入。`START-HERE.bat` 同样可用。分发时压缩整个文件夹，EXE 需要包内的 `runtime` 等目录。
+2. 双击 **Strata.exe**，浏览器直接打开模型设置页；尚未提供模型也能进入。`START-HERE.bat` 同样可用。分发时压缩整个文件夹，EXE 需要包内的 `runtime` 等目录。
 3. 选择收到的完整 **Strata-data** 目录，点击 **保存并进入**。可选择页面发现的本机模型或其他磁盘目录。
 4. 配置完成后进入聊天。后续启动自动使用已配置的服务；在 **模型设置** 点击其他模型卡片即可自动停止当前服务并切换，正在生成的回答会中断。手动填写路径后点击 **保存并切换模型**。SC117 显示为 **SC117 Uncensored**。按 Ctrl+C 或关闭启动窗口停止。
 
@@ -50,7 +50,7 @@ PREPARE-MODEL.bat --data-dir "D:\模型\Strata-data"
 
 ## 程序更新
 
-设置页 **一键更新** 会确认更新程序就绪，再停止本启动器的服务，自动下载、校验、安装并重新打开设置页。也可退出 Strata 后运行 `UPDATE-PORTABLE.bat`（`UPDATE.bat` 同样可用）。更新从 T8mars/Strata-T8 最新正式 Release 获取，优先复用未变化的组件；保留模型、配置、日志及浏览器聊天记录。新文件与自建文件重名时拒绝覆盖；替换失败回滚。
+设置页 **一键更新** 会确认更新程序就绪，再停止本启动器的服务，自动下载、校验、安装并重新打开设置页。也可退出 Strata 后运行 `UPDATE-PORTABLE.bat`（`UPDATE.bat` 同样可用）。更新从 yudachi0220/Strata 最新正式 Release 获取，优先复用未变化的组件；保留模型、配置、日志及浏览器聊天记录。新文件与自建文件重名时拒绝覆盖；替换失败回滚。
 
 结果保存在 `.portable-update/result.json`，更新进度写入 `logs/update-helper.log`；成功升级后可在页面查看并离线回退。旧版不支持组件时使用完整 ZIP。GitHub 不可达时检查失败不影响本地启动。NoModels 更新后运行 INSTALL-VISION.bat 切换至 VisionReady；启动器记录发行类型并刷新视觉配置。旧版未记录类型的配置可用 `START-HERE.bat --vision gpu` 启用视觉。
 
@@ -72,13 +72,13 @@ IQ3_S 可在部分 64GB 内存电脑上运行，但必须留出系统及其他�
 
 使用 Release 中的 `Windows-x64-VisionReady-NoMainModel.zip` 或 `Portable-NoModels.zip` 完整解压后启动；GitHub 的 `Source code` 不是含 Python 的整合包。聊天地址以设置页的“进入聊天”为准。包内 `llama.cpp` 用于 GGUF/视觉依赖，整合包聊天引擎仍为 Strata；若看到其他服务页面，请附地址、包版本和诊断结果反馈。
 
-[项目与最新 Release](https://github.com/T8mars/Strata-T8) · [上游 Strata](https://github.com/Niko1221/Strata)
+[项目与最新 Release](https://github.com/yudachi0220/Strata) · [上游 Strata](https://github.com/Niko1221/Strata)
 
 ## 视觉与 ComfyUI
 
 VisionReady 内置固定 BF16 mmproj、模板、来源和许可证；主模型/MTP 不包含。可用 START-HERE.bat --vision gpu、--vision cpu、--vision no 切换，--vision-tokens 指定图片 token 预算。更新保留用户编码方式和 token 设置。
 
-ComfyUI 节点在 [Comfyui-Strata-T8](https://github.com/T8mars/Comfyui-Strata-T8) 独立维护，可通过 Manager 安装与更新；[安装、模型路径与工作流](https://github.com/T8mars/Comfyui-Strata-T8#readme)。
+ComfyUI 节点在 [Comfyui-Strata](https://github.com/yudachi0220/Comfyui-Strata) 独立维护，可通过 Manager 安装与更新；[安装、模型路径与工作流](https://github.com/yudachi0220/Comfyui-Strata#readme)。
 
 ## 视频分析
 
@@ -88,16 +88,16 @@ ComfyUI 节点在 [Comfyui-Strata-T8](https://github.com/T8mars/Comfyui-Strata-T
 
 NVIDIA 原生双帧编码需主动启用：`START-HERE.bat --native-video`；关闭用 `--no-native-video`。它复用现有 Qwen 主模型和 VisionReady 视觉权重，无需额外模型。网页的视频模式可切换抽帧或原生编码；AMD 目前只保留既有文本引擎能力。详细限制、API 与验收见 [视频分析说明](docs/VIDEO-ANALYSIS.zh-CN.md)。
 
-## T8star 与资源
+## yudachi0220 与资源
 
-**By T8star** · [整合包仓库](https://github.com/T8mars/Strata-T8) · [ComfyUI 节点仓库](https://github.com/T8mars/Comfyui-Strata-T8)
+**By yudachi0220** · [整合包仓库](https://github.com/yudachi0220/Strata) · [ComfyUI 节点仓库](https://github.com/yudachi0220/Comfyui-Strata)
 
 | 链接 | 地址 |
 | --- | --- |
 | B站 | [B站](https://space.bilibili.com/385085361) |
-| YouTube | [YouTube](https://www.youtube.com/@T8star-Aix/) |
+| YouTube | [YouTube](https://www.youtube.com/@yudachi0220/) |
 | API | [API](https://api.seedance.nz/sign-up?aff=5f4w) |
 | 免费画廊 | [免费画廊](https://www.openzhenzhen.com) |
 | 在线 AI 应用 | [在线 AI 应用](https://www.runninghub.ai/zh-cn/user-center/1907375370302308353/userPost?inviteCode=rh-v1121) |
 | ComfyUI 整合包 | [ComfyUI 整合包](https://pan.quark.cn/s/264edb7e36bd) |
-| Hugging Face | [Hugging Face](https://huggingface.co/t8star) |
+| Hugging Face | [Hugging Face](https://huggingface.co/yudachi0220) |

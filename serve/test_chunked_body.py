@@ -67,7 +67,7 @@ class ChunkedBody(unittest.TestCase):
         req = json.dumps({"messages": [{"role": "user", "content": "hi"}], "max_tokens": 20}).encode()
         status, body = self.chat(b"Transfer-Encoding: chunked" + CRLF + b"Content-Length: 3" + CRLF,
                                  chunked(req, trailers=b"X-Trailer: 1" + CRLF))
-        # T8 retains its request-smuggling boundary while supporting unambiguous chunked bodies.
+        # Strata retains its request-smuggling boundary while supporting unambiguous chunked bodies.
         self.assertEqual(status, 400, body)
         self.assertIn('ambiguous', body['error']['message'])
 

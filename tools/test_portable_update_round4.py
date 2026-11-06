@@ -137,7 +137,7 @@ class PrepareTopology(unittest.TestCase):
 
     def prepare(self, old_files, new_files, user=None):
         root = self.base/'installed'; incoming = self.base/'source'
-        fixtures.package(root, old_files, '0.1.39-t8.1')
+        fixtures.package(root, old_files, '0.1.39')
         fixtures.package(incoming, new_files)
         (root/'tools').mkdir(exist_ok=True)
         shutil.copy2(fixtures.SOURCE/'tools/apply_portable_update.ps1', root/'tools/apply_portable_update.ps1')
@@ -149,8 +149,8 @@ class PrepareTopology(unittest.TestCase):
         with zipfile.ZipFile(payload, 'w') as stream:
             for file in incoming.rglob('*'):
                 if file.is_file(): stream.write(file, 'app/'+file.relative_to(incoming).as_posix())
-        content = payload.getvalue(); name = fixtures.archive_name('0.1.39-t8.2')
-        release = {'tag_name': 'v0.1.39-t8.2', 'assets': [
+        content = payload.getvalue(); name = fixtures.archive_name('0.1.39')
+        release = {'tag_name': 'v0.1.39', 'assets': [
             {'name': name, 'size': len(content), 'browser_download_url': 'https://github.com/zip'},
             {'name': name+'.sha256', 'browser_download_url': 'https://github.com/hash'}]}
         def fetch(url, destination=None, limit=None):
@@ -190,7 +190,7 @@ class ApplyTopology(unittest.TestCase):
 
     def plan(self, old_files, new_files):
         root = self.base/'installed'; incoming = self.base/'incoming'
-        old = fixtures.package(root, old_files, '0.1.39-t8.1')
+        old = fixtures.package(root, old_files, '0.1.39')
         new = fixtures.package(incoming, new_files)
         control = root/'.portable-update'; control.mkdir()
         path = control/'plan.json'
@@ -238,8 +238,8 @@ class ApplyTopology(unittest.TestCase):
         root, _, path = self.plan({'engine/bin.exe':'old engine'}, {'engine':'new engine'})
         result_path = root/'.portable-update/result.json'; result_path.write_text('previous report')
         wrapper = self.base/'locked-result.ps1'
-        wrapper.write_text('$lock = [IO.File]::Open($env:T8_RESULT_PATH, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)\n& $env:T8_APPLY_SCRIPT -PlanPath $env:T8_PLAN\nexit $LASTEXITCODE\n')
-        env = dict(os.environ, T8_RESULT_PATH=str(result_path), T8_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'), T8_PLAN=str(path))
+        wrapper.write_text('$lock = [IO.File]::Open($env:Strata_RESULT_PATH, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)\n& $env:Strata_APPLY_SCRIPT -PlanPath $env:Strata_PLAN\nexit $LASTEXITCODE\n')
+        env = dict(os.environ, Strata_RESULT_PATH=str(result_path), Strata_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'), Strata_PLAN=str(path))
         result = subprocess.run(['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(wrapper)],
                                 env=env,capture_output=True,text=True,errors='replace',timeout=45)
         self.assertNotEqual(result.returncode, 0)
@@ -253,8 +253,8 @@ class ApplyTopology(unittest.TestCase):
         root, _, path = self.plan({'app.py':'old'}, {'app.py':'new'})
         result_path = root/'.portable-update/result.json'; result_path.write_text('previous report')
         wrapper = self.base/'locked-result.ps1'
-        wrapper.write_text('$lock = [IO.File]::Open($env:T8_RESULT_PATH, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)\n& $env:T8_APPLY_SCRIPT -PlanPath $env:T8_PLAN\nexit $LASTEXITCODE\n')
-        env = dict(os.environ, T8_RESULT_PATH=str(result_path), T8_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'), T8_PLAN=str(path))
+        wrapper.write_text('$lock = [IO.File]::Open($env:Strata_RESULT_PATH, [IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)\n& $env:Strata_APPLY_SCRIPT -PlanPath $env:Strata_PLAN\nexit $LASTEXITCODE\n')
+        env = dict(os.environ, Strata_RESULT_PATH=str(result_path), Strata_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'), Strata_PLAN=str(path))
         result = subprocess.run(['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(wrapper)],
                                 env=env,capture_output=True,text=True,errors='replace',timeout=45)
         self.assertNotEqual(result.returncode, 0)
@@ -276,8 +276,8 @@ class ApplyTopology(unittest.TestCase):
     def test_topology_file_to_directory_rolls_back_when_new_copy_fails(self):
         root, incoming, path = self.plan({'engine':'old engine'}, {'engine/bin.exe':'new engine'})
         wrapper = self.base/'failed-copy.ps1'
-        wrapper.write_text('function Copy-Item { throw "simulated new-file copy failure" }\n& $env:T8_APPLY_SCRIPT -PlanPath $env:T8_PLAN\nexit $LASTEXITCODE\n')
-        env = dict(os.environ, T8_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'), T8_PLAN=str(path))
+        wrapper.write_text('function Copy-Item { throw "simulated new-file copy failure" }\n& $env:Strata_APPLY_SCRIPT -PlanPath $env:Strata_PLAN\nexit $LASTEXITCODE\n')
+        env = dict(os.environ, Strata_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'), Strata_PLAN=str(path))
         result = subprocess.run(['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(wrapper)],
                                 env=env,capture_output=True,text=True,errors='replace',timeout=45)
         self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
@@ -289,8 +289,8 @@ class ApplyTopology(unittest.TestCase):
     def test_two_equal_length_created_directories_are_both_removed_on_rollback(self):
         root, _, path = self.plan({'a':'old a', 'b':'old b'}, {'a/new.py':'new a', 'b/new.py':'new b'})
         wrapper = self.base/'failed-manifest-copy.ps1'
-        wrapper.write_text('function Copy-Item { param([string]$LiteralPath, [string]$Destination)\nif ($LiteralPath.EndsWith("PACKAGE-MANIFEST.json")) { throw "simulated manifest copy failure" }\nMicrosoft.PowerShell.Management\\Copy-Item -LiteralPath $LiteralPath -Destination $Destination\n}\n& $env:T8_APPLY_SCRIPT -PlanPath $env:T8_PLAN\nexit $LASTEXITCODE\n')
-        env = dict(os.environ, T8_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'), T8_PLAN=str(path))
+        wrapper.write_text('function Copy-Item { param([string]$LiteralPath, [string]$Destination)\nif ($LiteralPath.EndsWith("PACKAGE-MANIFEST.json")) { throw "simulated manifest copy failure" }\nMicrosoft.PowerShell.Management\\Copy-Item -LiteralPath $LiteralPath -Destination $Destination\n}\n& $env:Strata_APPLY_SCRIPT -PlanPath $env:Strata_PLAN\nexit $LASTEXITCODE\n')
+        env = dict(os.environ, Strata_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'), Strata_PLAN=str(path))
         result = subprocess.run(['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(wrapper)],
                                 env=env,capture_output=True,text=True,errors='replace',timeout=45)
         self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)

@@ -34,14 +34,14 @@ class StrictReleaseJson(unittest.TestCase):
         def change(root):
             path=root/'PACKAGE-MANIFEST.json'
             text=path.read_text()
-            path.write_text(text.replace('"version":', '"version":"0.1.39-t8.0","version":',1))
+            path.write_text(text.replace('"version":', '"version":"0.1.39","version":',1))
         with self.assertRaisesRegex(ValueError,'duplicate|Duplicate'):
             update.extract_release(self.archive(change), self.base/'incoming')
 
     def test_duplicate_application_metadata_is_rejected(self):
         def change(root):
             meta=root/'meta.json'
-            meta.write_text('{"version":"0.1.39-t8.0","version":"0.1.39-t8.2"}')
+            meta.write_text('{"version":"0.1.39","version":"0.1.39"}')
             path=root/'PACKAGE-MANIFEST.json'; manifest=json.loads(path.read_text())
             entry=next(e for e in manifest['files'] if e['path']=='meta.json')
             entry.update(size=meta.stat().st_size,sha256=hashlib.sha256(meta.read_bytes()).hexdigest())
@@ -50,12 +50,12 @@ class StrictReleaseJson(unittest.TestCase):
             update.extract_release(self.archive(change), self.base/'incoming')
 
     def test_release_api_nonfinite_numbers_are_rejected(self):
-        with mock.patch.object(update,'urlopen',return_value=io.BytesIO(b'{"tag_name":"v0.1.39-t8.2","extra":NaN}')):
-            with self.assertRaises(ValueError): update.latest_release('T8mars/Strata-T8')
+        with mock.patch.object(update,'urlopen',return_value=io.BytesIO(b'{"tag_name":"v0.1.39","extra":NaN}')):
+            with self.assertRaises(ValueError): update.latest_release('yudachi0220/Strata')
 
     def test_release_api_duplicate_fields_are_rejected(self):
-        with mock.patch.object(update,'urlopen',return_value=io.BytesIO(b'{"tag_name":"bad","tag_name":"v0.1.39-t8.2"}')):
-            with self.assertRaises(ValueError): update.latest_release('T8mars/Strata-T8')
+        with mock.patch.object(update,'urlopen',return_value=io.BytesIO(b'{"tag_name":"bad","tag_name":"v0.1.39"}')):
+            with self.assertRaises(ValueError): update.latest_release('yudachi0220/Strata')
 
 
 @unittest.skipUnless(os.name=='nt','actual Windows updater')
@@ -146,17 +146,17 @@ class ApplyBoundaries(unittest.TestCase):
 
     def wrapper(self, path, body, **values):
         wrapper=self.base/'wrapper.ps1'
-        wrapper.write_text(body+'\n& $env:T8_APPLY_SCRIPT -PlanPath $env:T8_PLAN\nexit $LASTEXITCODE\n')
-        env=dict(os.environ,T8_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'),T8_PLAN=str(path),**{k:str(v) for k,v in values.items()})
+        wrapper.write_text(body+'\n& $env:Strata_APPLY_SCRIPT -PlanPath $env:Strata_PLAN\nexit $LASTEXITCODE\n')
+        env=dict(os.environ,Strata_APPLY_SCRIPT=str(fixtures.SOURCE/'tools/apply_portable_update.ps1'),Strata_PLAN=str(path),**{k:str(v) for k,v in values.items()})
         return subprocess.run(['powershell','-NoProfile','-ExecutionPolicy','Bypass','-File',str(wrapper)],env=env,capture_output=True,text=True,errors='replace',timeout=45)
 
     def test_file_created_during_copy_is_not_overwritten_or_deleted_by_rollback(self):
         root,_,path=self.plan({'app.py':'old'},{'app.py':'new','new.py':'package new file'})
         body='''function Copy-Item { param([string]$LiteralPath,[string]$Destination)
-if ($LiteralPath.EndsWith('new.py')) { [IO.File]::WriteAllText($env:T8_RACE_TARGET,'user raced file') }
+if ($LiteralPath.EndsWith('new.py')) { [IO.File]::WriteAllText($env:Strata_RACE_TARGET,'user raced file') }
 Microsoft.PowerShell.Management\\Copy-Item -LiteralPath $LiteralPath -Destination $Destination
 }'''
-        result=self.wrapper(path,body,T8_RACE_TARGET=root/'new.py')
+        result=self.wrapper(path,body,Strata_RACE_TARGET=root/'new.py')
         self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
         self.assertEqual((root/'new.py').read_text(),'user raced file')
         self.assertEqual((root/'app.py').read_text(),'old')
@@ -165,10 +165,10 @@ Microsoft.PowerShell.Management\\Copy-Item -LiteralPath $LiteralPath -Destinatio
 
     def test_readonly_old_file_is_preserved_during_copy_failure(self):
         root,_,path=self.plan({'app.py':'old'},{'app.py':'new'})
-        body='''[IO.File]::SetAttributes($env:T8_READONLY_PATH,[IO.FileAttributes]::ReadOnly)
+        body='''[IO.File]::SetAttributes($env:Strata_READONLY_PATH,[IO.FileAttributes]::ReadOnly)
 function Copy-Item { throw 'controlled copy failure' }'''
         try:
-            result=self.wrapper(path,body,T8_READONLY_PATH=root/'app.py')
+            result=self.wrapper(path,body,Strata_READONLY_PATH=root/'app.py')
             self.assertNotEqual(result.returncode,0)
             self.assertEqual((root/'app.py').read_text(),'old')
         finally:
@@ -177,7 +177,7 @@ function Copy-Item { throw 'controlled copy failure' }'''
     def test_plan_delete_failure_rolls_back_and_retains_retry_plan(self):
         root,_,path=self.plan({'app.py':'old'},{'app.py':'new'})
         body='''function Remove-Item { param([string]$LiteralPath,[switch]$Force)
-if ($LiteralPath -eq $env:T8_PLAN) { throw 'controlled plan deletion denied' }
+if ($LiteralPath -eq $env:Strata_PLAN) { throw 'controlled plan deletion denied' }
 Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$Force
 }'''
         result=self.wrapper(path,body)
@@ -194,18 +194,18 @@ Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$F
         self.assertEqual(result.returncode,0,result.stdout+result.stderr)
         self.assertEqual((root/'app.py').read_text(),'new')
         report=json.loads(result_path.read_text(encoding='utf-8-sig'))
-        self.assertTrue(report['success']); self.assertEqual(report['version'],'0.1.39-t8.2')
+        self.assertTrue(report['success']); self.assertEqual(report['version'],'0.1.39')
         self.assertEqual({p.name for p in result_path.parent.iterdir()},{'result.json'})
 
     def test_readonly_staged_file_can_be_removed_during_rollback(self):
         root,incoming,path=self.plan({'app.py':'old'},{'app.py':'new'})
-        body='''[IO.File]::SetAttributes($env:T8_READONLY_PATH,[IO.FileAttributes]::ReadOnly)
+        body='''[IO.File]::SetAttributes($env:Strata_READONLY_PATH,[IO.FileAttributes]::ReadOnly)
 function Copy-Item { param([string]$LiteralPath,[string]$Destination)
 if ($LiteralPath.EndsWith('PACKAGE-MANIFEST.json')) { throw 'controlled final-copy failure' }
 Microsoft.PowerShell.Management\\Copy-Item -LiteralPath $LiteralPath -Destination $Destination
 }'''
         try:
-            result=self.wrapper(path,body,T8_READONLY_PATH=incoming/'app.py')
+            result=self.wrapper(path,body,Strata_READONLY_PATH=incoming/'app.py')
             self.assertNotEqual(result.returncode,0)
             self.assertEqual((root/'app.py').read_text(),'old')
             report=json.loads((root/'.portable-update/result.json').read_text(encoding='utf-8-sig'))
@@ -226,8 +226,8 @@ class OwnedStaging(unittest.TestCase):
 
     def test_repeated_prepare_removes_only_its_superseded_unapplied_owned_stage(self):
         root,release,fetch=self.fixture()
-        first=Path(tempfile.mkdtemp(prefix='Strata-T8-update-'))
-        second=Path(tempfile.mkdtemp(prefix='Strata-T8-update-'))
+        first=Path(tempfile.mkdtemp(prefix='Strata-update-'))
+        second=Path(tempfile.mkdtemp(prefix='Strata-update-'))
         try:
             self.prepare(root,release,fetch,first)
             self.prepare(root,release,fetch,second)
@@ -239,8 +239,8 @@ class OwnedStaging(unittest.TestCase):
 
     def test_superseded_stage_with_backup_is_retained(self):
         root,release,fetch=self.fixture()
-        first=Path(tempfile.mkdtemp(prefix='Strata-T8-update-'))
-        second=Path(tempfile.mkdtemp(prefix='Strata-T8-update-'))
+        first=Path(tempfile.mkdtemp(prefix='Strata-update-'))
+        second=Path(tempfile.mkdtemp(prefix='Strata-update-'))
         try:
             self.prepare(root,release,fetch,first)
             (first/'backup').mkdir(); (first/'backup/precious.txt').write_text('old backup')
@@ -252,10 +252,10 @@ class OwnedStaging(unittest.TestCase):
 
     def test_noop_removes_only_its_owned_pending_stage(self):
         root,release,fetch=self.fixture()
-        stage=Path(tempfile.mkdtemp(prefix='Strata-T8-update-'))
+        stage=Path(tempfile.mkdtemp(prefix='Strata-update-'))
         try:
             self.prepare(root,release,fetch,stage)
-            release=dict(release,tag_name='v0.1.39-t8.1')
+            release=dict(release,tag_name='v0.1.39')
             with mock.patch.object(update,'running_processes',return_value=[]):
                 self.assertIsNone(update.prepare(root,release))
             self.assertFalse(stage.exists())
@@ -267,8 +267,8 @@ class OwnedStaging(unittest.TestCase):
         for kind in ('file','empty-directory'):
             with self.subTest(kind=kind):
                 root,release,fetch=self.fixture()
-                first=Path(tempfile.mkdtemp(prefix='Strata-T8-update-'))
-                second=Path(tempfile.mkdtemp(prefix='Strata-T8-update-'))
+                first=Path(tempfile.mkdtemp(prefix='Strata-update-'))
+                second=Path(tempfile.mkdtemp(prefix='Strata-update-'))
                 try:
                     self.prepare(root,release,fetch,first)
                     user=first/'incoming/user-added'
@@ -289,7 +289,7 @@ class OwnedStaging(unittest.TestCase):
                 control=root/'.portable-update'; control.mkdir()
                 previous_plan={'stage':None,'stage_owner':'fake'} if malformed else {'stage':str(previous/'incoming'),'backup':str(previous/'backup')}
                 (control/'plan.json').write_text(json.dumps(previous_plan))
-                stage=Path(tempfile.mkdtemp(prefix='Strata-T8-update-'))
+                stage=Path(tempfile.mkdtemp(prefix='Strata-update-'))
                 try:
                     self.assertIsNotNone(self.prepare(root,release,fetch,stage))
                     self.assertEqual((previous/'keep.txt').read_text(),'user')

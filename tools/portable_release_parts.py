@@ -17,7 +17,7 @@ def digest(path):
 
 def names(archive):
     name = Path(archive).name
-    if not re.fullmatch(r'Strata-T8-[0-9.]+-t8\.[0-9]+-Windows-x64-(?:Portable-NoModels|VisionReady-NoMainModel)\.zip', name):
+    if not re.fullmatch(r'Strata-[0-9.]+-Windows-x64-(?:Portable-NoModels|VisionReady-NoMainModel)\.zip', name):
         raise ValueError('Unexpected portable archive name')
     return name + '.parts.json', name + '-ASSEMBLE.ps1', name + '-ASSEMBLE.bat'
 
@@ -65,7 +65,7 @@ try {
   [IO.File]::Move($temporary, $target)
   $ownedTemporary = $false
   Write-Host ('Verified ZIP: ' + $target)
-  Write-Host 'Extract this ZIP, then open Strata-T8.exe inside its folder.'
+  Write-Host 'Extract this ZIP, then open Strata.exe inside its folder.'
 } catch {
   $failure = $_
   if ($ownedTemporary) {

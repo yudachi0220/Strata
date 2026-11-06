@@ -1,4 +1,4 @@
-"""Upstream startup/cache improvements retain T8 cancellation and temporary-file ownership."""
+"""Upstream startup/cache improvements retain Strata cancellation and temporary-file ownership."""
 import copy
 from pathlib import Path
 import sys,tempfile,threading,unittest

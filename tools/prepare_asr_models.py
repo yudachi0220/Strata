@@ -44,7 +44,7 @@ def main():
         fetch(urls, destination/name, size, digest)
     for relative, target, entries in (('',destination,LICENSES), ('FireRedVAD-ONNX/',args.vad_dir or destination/'FireRedVAD-ONNX',VAD)):
         for name,size,digest in entries:
-            fetch([f'https://{host}/t8star/Confucius-R2t2-Comfy/resolve/{MIRROR_REV}/{relative}{name}'
+            fetch([f'https://{host}/yudachi0220/Confucius-R2t2-Comfy/resolve/{MIRROR_REV}/{relative}{name}'
                    for host in ('hf-mirror.com','huggingface.co')], target/name, size, digest)
     print(f'Confucius {args.quantization} and audio projector verified: {destination}')
 

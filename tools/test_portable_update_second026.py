@@ -143,7 +143,7 @@ class RestorePublicationCancellation(unittest.TestCase):
         for path, raw in previous.items():
             self.assertEqual(path.read_bytes(), raw)
         self.assertTrue(Path(first['stage']).is_dir())
-        self.assertEqual(len(list(self.base.glob('Strata-T8-update-*'))), 1)
+        self.assertEqual(len(list(self.base.glob('Strata-update-*'))), 1)
 
     def test_first_restore_cancelled_after_commit_leaves_no_pending_controls_or_stage(self):
         write = restore_update.atomic_json
@@ -155,7 +155,7 @@ class RestorePublicationCancellation(unittest.TestCase):
                 self.prepare()
         self.assertFalse((self.root/'.portable-update/plan.json').exists())
         self.assertFalse((self.root/'.portable-update/apply.ps1').exists())
-        self.assertEqual(list(self.base.glob('Strata-T8-update-*')), [])
+        self.assertEqual(list(self.base.glob('Strata-update-*')), [])
         self.assertTrue(self.backup.is_dir())
 
 
@@ -171,7 +171,7 @@ class SuccessfulStageCleanup(unittest.TestCase):
             plan = update.prepare(root, release)
         owned = Path(plan['stage']).parent.resolve()
         self.assertEqual(owned.parent, Path(tempfile.gettempdir()).resolve())
-        self.assertTrue(owned.name.startswith('Strata-T8-update-'))
+        self.assertTrue(owned.name.startswith('Strata-update-'))
         self.addCleanup(lambda: shutil.rmtree(owned) if owned.exists() else None)
         return plan
 
@@ -180,18 +180,18 @@ class SuccessfulStageCleanup(unittest.TestCase):
         descriptor = root/'.portable-update/plan.json'
         if added:
             wrapper = self.base/'cleanup-wrapper.ps1'
-            wrapper.write_text(added+'\n& $env:T8_APPLY -PlanPath $env:T8_PLAN\nexit $LASTEXITCODE\n', encoding='utf-8')
+            wrapper.write_text(added+'\n& $env:Strata_APPLY -PlanPath $env:Strata_PLAN\nexit $LASTEXITCODE\n', encoding='utf-8')
             script = wrapper
         result = subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(script),
                                   *(['-PlanPath',str(descriptor)] if not added else [])],
             capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=40,
-            env={**os.environ, 'T8_APPLY':str(root/'.portable-update/apply.ps1'),'T8_PLAN':str(descriptor)})
+            env={**os.environ, 'Strata_APPLY':str(root/'.portable-update/apply.ps1'),'Strata_PLAN':str(descriptor)})
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         return result
 
     def test_update_restore_update_reclaims_stages_and_keeps_independent_backups(self):
         root, _, _, _, assets, _, fetch = self.fixture()
-        release = {'tag_name':'v0.1.42-t8.9','assets':list(assets.values())}
+        release = {'tag_name':'v0.1.42','assets':list(assets.values())}
         (root/'portable-settings.json').write_text('keep settings')
         first = self.prepare(root, release, fetch)
         self.apply(root)
@@ -202,7 +202,7 @@ class SuccessfulStageCleanup(unittest.TestCase):
             reverse = restore.prepare(root, choices[0]['id'])
         reverse_stage = Path(reverse['stage']).parent.resolve()
         self.assertEqual(reverse_stage.parent, Path(tempfile.gettempdir()).resolve())
-        self.assertTrue(reverse_stage.name.startswith('Strata-T8-update-'))
+        self.assertTrue(reverse_stage.name.startswith('Strata-update-'))
         self.addCleanup(lambda: shutil.rmtree(reverse_stage) if reverse_stage.exists() else None)
         self.apply(root)
         self.assertFalse(reverse_stage.exists())
@@ -216,7 +216,7 @@ class SuccessfulStageCleanup(unittest.TestCase):
 
     def test_user_added_staging_content_is_preserved_after_success(self):
         root, _, _, _, assets, _, fetch = self.fixture()
-        plan = self.prepare(root, {'tag_name':'v0.1.42-t8.9','assets':list(assets.values())}, fetch)
+        plan = self.prepare(root, {'tag_name':'v0.1.42','assets':list(assets.values())}, fetch)
         private = Path(plan['stage']).parent/'user-notes.txt'
         private.write_text('user notes')
         self.apply(root)
@@ -226,7 +226,7 @@ class SuccessfulStageCleanup(unittest.TestCase):
 
     def test_extra_empty_directory_preserves_complete_stage(self):
         root, _, _, _, assets, _, fetch = self.fixture()
-        plan = self.prepare(root, {'tag_name':'v0.1.42-t8.9','assets':list(assets.values())}, fetch)
+        plan = self.prepare(root, {'tag_name':'v0.1.42','assets':list(assets.values())}, fetch)
         extra = Path(plan['stage']).parent/'private-empty-directory'; extra.mkdir()
         self.apply(root)
         self.assertTrue(extra.is_dir())
@@ -243,7 +243,7 @@ Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$F
 
     def test_same_length_file_changed_after_installation_preserves_stage(self):
         root, _, _, _, assets, _, fetch = self.fixture()
-        plan = self.prepare(root, {'tag_name':'v0.1.42-t8.9','assets':list(assets.values())}, fetch)
+        plan = self.prepare(root, {'tag_name':'v0.1.42','assets':list(assets.values())}, fetch)
         self.apply(root, added=self.late_change("[IO.File]::WriteAllText((Join-Path $pending.stage 'app.py'),'bad app')"))
         self.assertEqual((Path(plan['stage'])/'app.py').read_text(), 'bad app')
         self.assertTrue((Path(plan['stage']).parent/'stage-owner.json').is_file())
@@ -251,7 +251,7 @@ Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$F
 
     def test_missing_success_receipt_does_not_authorize_stage_cleanup(self):
         root, _, _, _, assets, _, fetch = self.fixture()
-        plan = self.prepare(root, {'tag_name':'v0.1.42-t8.9','assets':list(assets.values())}, fetch)
+        plan = self.prepare(root, {'tag_name':'v0.1.42','assets':list(assets.values())}, fetch)
         code = "Microsoft.PowerShell.Management\\Remove-Item -LiteralPath (Join-Path $pending.root ('.portable-update/history/' + $pending.stage_owner + '.json'))"
         self.apply(root, added=self.late_change(code))
         self.assertTrue((Path(plan['stage'])/'app.py').is_file())
@@ -262,7 +262,7 @@ Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$F
         for linked in (False, True):
             with self.subTest(linked=linked):
                 root, _, _, _, assets, _, fetch = self.fixture()
-                plan = self.prepare(root, {'tag_name':'v0.1.42-t8.9','assets':list(assets.values())}, fetch)
+                plan = self.prepare(root, {'tag_name':'v0.1.42','assets':list(assets.values())}, fetch)
                 parent = Path(plan['stage']).parent
                 if linked:
                     target = self.base/'user-directory'; target.mkdir(exist_ok=True)
@@ -278,7 +278,7 @@ Microsoft.PowerShell.Management\\Remove-Item -LiteralPath $LiteralPath -Force:$F
 
     def test_cleanup_lock_does_not_roll_back_completed_update(self):
         root, _, _, _, assets, _, fetch = self.fixture()
-        plan = self.prepare(root, {'tag_name':'v0.1.42-t8.9','assets':list(assets.values())}, fetch)
+        plan = self.prepare(root, {'tag_name':'v0.1.42','assets':list(assets.values())}, fetch)
         hook = '''function Remove-Item { param([string]$LiteralPath,[switch]$Force)
 if ($LiteralPath.EndsWith('plan.json')) {
   $plan = Get-Content -LiteralPath $LiteralPath -Raw -Encoding UTF8 | ConvertFrom-Json

@@ -1,4 +1,4 @@
-"""Download and verify a T8 release. The batch entry applies it after Python exits."""
+"""Download and verify a Strata release. The batch entry applies it after Python exits."""
 from __future__ import annotations
 import argparse
 import hashlib
@@ -79,7 +79,7 @@ def discard_owned_pending_stage(root, plan):
         if original_stage.is_symlink() or getattr(original_stage, 'is_junction', lambda: False)():
             return
         stage = original_stage.resolve()
-        if (stage.parent != temp_root or not stage.name.startswith('Strata-T8-update-')
+        if (stage.parent != temp_root or not stage.name.startswith('Strata-update-')
                 or (stage/'backup').exists() or Path(plan['stage']).resolve() != stage/'incoming'):
             return
         from portable_restore import backup_destination
@@ -183,7 +183,7 @@ def validate_manifest(root, manifest, verify=True, *, progress=False):
 
 def latest_release(repo=None, timeout=10):
     repo = repo or metadata()['repository']
-    req = urllib.request.Request(f'https://api.github.com/repos/{repo}/releases/latest', headers={'User-Agent': 'Strata-T8', 'Accept': 'application/vnd.github+json'})
+    req = urllib.request.Request(f'https://api.github.com/repos/{repo}/releases/latest', headers={'User-Agent': 'Strata', 'Accept': 'application/vnd.github+json'})
     with urlopen(req, timeout=timeout) as response:
         payload = response.read(4*1024**2+1)
         if len(payload) > 4*1024**2:
@@ -232,7 +232,7 @@ def fetch(url, destination=None, limit=2*1024**3):
     started=time.monotonic();size=0;total=None
     reporter=Progress('Downloading '+url.rsplit('/',1)[-1])
     for attempt in range(DOWNLOAD_ATTEMPTS):
-        headers={'User-Agent':'Strata-T8','Accept-Encoding':'identity'}
+        headers={'User-Agent':'Strata','Accept-Encoding':'identity'}
         if destination is not None and size:headers['Range']=f'bytes={size}-'
         request=urllib.request.Request(url,headers=headers)
         try:
@@ -445,7 +445,7 @@ def prepare(root=ROOT, release=None, edition=None):
         digest, filename = checksum.split(maxsplit=1)
         if filename.strip().lstrip('*') != name or not re.fullmatch('[0-9a-fA-F]{64}', digest):
             raise ValueError('Invalid release checksum metadata')
-    stage = Path(tempfile.mkdtemp(prefix='Strata-T8-update-'))
+    stage = Path(tempfile.mkdtemp(prefix='Strata-update-'))
     owned_stage = stage.resolve()
     published = False
     try:

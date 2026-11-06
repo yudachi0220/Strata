@@ -60,8 +60,8 @@ short version is:
 4. Connect the user's apps: `strata connect` lists them, `strata connect <app> --check` sends one prompt and one tool
    call the way that app does.
 
-T8 portable keeps the server on `127.0.0.1` unless the user asks for more. Any non-loopback bind requires an API key;
-`--no-api-key` does not bypass this requirement. The T8 EXE and web settings remain the supported portable entry point.
+Strata portable keeps the server on `127.0.0.1` unless the user asks for more. Any non-loopback bind requires an API key;
+`--no-api-key` does not bypass this requirement. The Strata EXE and web settings remain the supported portable entry point.
 Upstream source setup (`START-HERE.bat`, `setup.sh`) is the fallback for a developer or for a system with no release package; it is
 documented in [docs/SOURCE_INSTALL.md](docs/SOURCE_INSTALL.md). Those wrappers exist in a source checkout, not in the
 released app. Do not tell an app user to find a `.bat` file.

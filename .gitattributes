@@ -19,7 +19,7 @@ serve/asr/contract.py text eol=lf
 serve/asr/media.py text eol=lf
 
 # The fork's landing page is maintained separately; sync_upstream configures this driver.
-README.md merge=t8-keep
+README.md merge=strata-keep
 
 # the quant yardstick's text set: tokenized byte for byte (set.ids.json), never convert its line endings
 data/quant_quality/** -text

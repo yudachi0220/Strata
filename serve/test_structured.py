@@ -105,7 +105,7 @@ class Structured(unittest.TestCase):
         self.assertEqual(self.chat('{"answer":4}', response_format=fmt)[0], 200)
         for script in ('[]', '{"x":NaN}', '{"x":1,"x":2}', '{"x":1e999}', 'no json at all', '{"x":'):
             self.assertEqual(self.chat(script, response_format=fmt)[0], 502)
-        # #762 compatibility is opt-in: strict T8 callers still require exactly one JSON object.
+        # #762 compatibility is opt-in: strict Strata callers still require exactly one JSON object.
         for script in ('```json\n{}\n```', 'Here it is: {"answer":4} - done'):
             self.assertEqual(self.chat(script, response_format=fmt)[0], 502, script)
             self.assertEqual(self.chat(script, response_format=fmt, strata_json_compatibility=True)[0], 200, script)

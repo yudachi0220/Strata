@@ -1,4 +1,4 @@
-"""The v0.1.45 prompt cache must coexist with T8's ordered temporal embeddings."""
+"""The v0.1.45 prompt cache must coexist with Strata's ordered temporal embeddings."""
 from pathlib import Path
 import tempfile, unittest
 from unittest import mock

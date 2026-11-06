@@ -1,4 +1,4 @@
-// Strata-T8 portable entry. Uses the bundled interpreter; no shell or system Python.
+// Strata portable entry. Uses the bundled interpreter; no shell or system Python.
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
@@ -20,7 +20,7 @@ static std::wstring quote(const std::wstring &value) {
 }
 
 static void write_error(const std::wstring &message) {
-    const std::wstring text = L"[Strata-T8] " + message + L"\r\n";
+    const std::wstring text = L"[Strata] " + message + L"\r\n";
     HANDLE output = GetStdHandle(STD_ERROR_HANDLE);
     DWORD mode = 0, written = 0;
     if (GetConsoleMode(output, &mode)) {
@@ -46,7 +46,7 @@ static int finish(DWORD code, bool interactive) {
 int wmain(int argc, wchar_t **argv) {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
-    SetConsoleTitleW(L"Strata-T8 | By T8star");
+    SetConsoleTitleW(L"Strata | By yudachi0220");
     std::vector<wchar_t> path(32768);
     DWORD length = GetModuleFileNameW(nullptr, path.data(), static_cast<DWORD>(path.size()));
     if (!length || length >= path.size()) {

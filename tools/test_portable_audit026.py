@@ -62,7 +62,7 @@ class DeepSeekSettings(unittest.TestCase):
 
     def test_invalid_native_video_is_rejected_before_stopping_current_service(self):
         self.configuration()
-        (self.root/'meta.json').write_text('{"version":"0.2.6-t8.1"}', encoding='utf-8')
+        (self.root/'meta.json').write_text('{"version":"0.2.6"}', encoding='utf-8')
         app = ui.ModelSetup(self.root)
         self.addCleanup(app.close)
         with mock.patch.object(app, 'stop_backend') as stop:
@@ -81,8 +81,8 @@ class RestoreHistory(unittest.TestCase):
             for i, value in enumerate(([], None, 42, 'bad', {}, {'id': 'wrong'})):
                 (history/(f'{i:032x}.json')).write_text(json.dumps(value), encoding='utf-8')
             identity = 'f'*32
-            good = {'id': identity, 'root': str(root), 'from_version': '0.1.45-t8.1',
-                    'to_version': '0.2.6-t8.1', 'installed_manifest_sha256': 'other'}
+            good = {'id': identity, 'root': str(root), 'from_version': '0.1.45',
+                    'to_version': '0.2.6', 'installed_manifest_sha256': 'other'}
             (history/(identity+'.json')).write_text(json.dumps(good), encoding='utf-8')
             self.assertEqual(restore.list_backups(root)['backups'], [{
                 'id': identity, 'from_version': good['from_version'],

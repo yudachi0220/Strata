@@ -23,13 +23,13 @@ class PendingRestoreStages(unittest.TestCase):
         temporary_root.start(); self.addCleanup(temporary_root.stop)
         self.root = self.base/'installed'
         executor = (SOURCE/'tools/apply_portable_update.ps1').read_text(encoding='utf-8')
-        package(self.root, {'app.py': 'current', 'tools/apply_portable_update.ps1': executor}, '0.2.6-t8.1')
+        package(self.root, {'app.py': 'current', 'tools/apply_portable_update.ps1': executor}, '0.2.6')
         self.identity = 'a'*32
         self.backup = restore.backup_destination(self.root, self.identity)
-        package(self.backup, {'app.py': 'previous', 'tools/apply_portable_update.ps1': executor}, '0.1.45-t8.1')
+        package(self.backup, {'app.py': 'previous', 'tools/apply_portable_update.ps1': executor}, '0.1.45')
         history = self.root/'.portable-update/history'; history.mkdir(parents=True)
         receipt = {'id': self.identity, 'root': str(self.root), 'backup': str(self.backup),
-                   'from_version': '0.1.45-t8.1', 'to_version': '0.2.6-t8.1',
+                   'from_version': '0.1.45', 'to_version': '0.2.6',
                    'target_manifest_sha256': hashlib.sha256((self.backup/'PACKAGE-MANIFEST.json').read_bytes()).hexdigest(),
                    'installed_manifest_sha256': hashlib.sha256((self.root/'PACKAGE-MANIFEST.json').read_bytes()).hexdigest()}
         (history/(self.identity+'.json')).write_text(json.dumps(receipt), encoding='utf-8')
@@ -84,7 +84,7 @@ class PendingRestoreStages(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Linked'):
             self.prepare()
         self.assertEqual(target.read_text(), 'unrelated user file')
-        self.assertEqual(list(self.base.glob('Strata-T8-update-*')), [])
+        self.assertEqual(list(self.base.glob('Strata-update-*')), [])
 
     def test_failed_second_publication_retains_previous_plan_and_stage(self):
         first = self.prepare()
@@ -95,7 +95,7 @@ class PendingRestoreStages(unittest.TestCase):
                 self.prepare()
         self.assertEqual(descriptor.read_bytes(), previous)
         self.assertTrue(Path(first['stage']).is_dir())
-        self.assertEqual(len(list(self.base.glob('Strata-T8-update-*'))), 1)
+        self.assertEqual(len(list(self.base.glob('Strata-update-*'))), 1)
 
     def test_interrupted_cleanup_does_not_remove_newly_published_stage(self):
         self.prepare()

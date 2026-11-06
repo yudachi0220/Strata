@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 @unittest.skipUnless(os.name == 'nt', 'Windows update helper')
 class WindowsUpdateHelper(unittest.TestCase):
     def exercise(self, fail=False):
-        with tempfile.TemporaryDirectory(prefix='T8 更新 中文 空格 ') as temporary:
+        with tempfile.TemporaryDirectory(prefix='Strata 更新 中文 空格 ') as temporary:
             root=Path(temporary)/'app'; (root/'runtime/python').mkdir(parents=True)
             (root/'tools').mkdir()
             python=Path(sys.executable)

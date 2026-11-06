@@ -25,7 +25,7 @@ def verify(root=ROOT):
     if (record.get('version')!=version or record.get('schema')!=1 or record.get('static_runtime') is not True
             or record.get('inputs')!={name:sha(root/name) for name in FILES}
             or record.get('builder_sha256')!=sha(root/'tools/build_windows_launcher.py')
-            or record.get('sha256')!=sha(root/'Strata-T8.exe')):
+            or record.get('sha256')!=sha(root/'Strata.exe')):
         raise ValueError('Windows EXE launcher is missing or stale; rebuild it before packaging')
     return record
 
@@ -41,20 +41,20 @@ def build(root=ROOT,vsdevcmd=None):
         resource.write_text('#include <windows.h>\n1 VERSIONINFO\n FILEVERSION '+','.join(map(str,numbers))+
             '\n PRODUCTVERSION '+','.join(map(str,numbers))+'\n FILEOS VOS_NT_WINDOWS32\n FILETYPE VFT_APP\nBEGIN\n'
             ' BLOCK "StringFileInfo"\n BEGIN\n BLOCK "040904b0"\n BEGIN\n'
-            ' VALUE "CompanyName", "T8star"\n VALUE "FileDescription", "Strata-T8 portable launcher | By T8star"\n'
+            ' VALUE "CompanyName", "yudachi0220"\n VALUE "FileDescription", "Strata portable launcher | By yudachi0220"\n'
             f' VALUE "FileVersion", "{version}"\n VALUE "ProductVersion", "{version}"\n'
-            ' VALUE "ProductName", "Strata-T8"\n VALUE "OriginalFilename", "Strata-T8.exe"\n END\n END\n'
+            ' VALUE "ProductName", "Strata"\n VALUE "OriginalFilename", "Strata.exe"\n END\n END\n'
             ' BLOCK "VarFileInfo"\n BEGIN\n VALUE "Translation", 0x0409, 1200\n END\nEND\n','utf-8')
         subprocess.run([rc,'/nologo','/fo',str(directory/'launcher.res'),str(resource)],env=env,cwd=directory,check=True)
         command=[compiler,'/nologo','/std:c++17','/O2','/MT','/utf-8','/W4','/WX','/DUNICODE','/D_UNICODE',
-            str(root/FILES[0]),str(directory/'launcher.res'),'/Fe:'+str(directory/'Strata-T8.exe'),'/link',
+            str(root/FILES[0]),str(directory/'launcher.res'),'/Fe:'+str(directory/'Strata.exe'),'/link',
             '/SUBSYSTEM:CONSOLE','/MACHINE:X64','/DYNAMICBASE','/NXCOMPAT','/MANIFEST:EMBED',
             '/MANIFESTINPUT:'+str(root/FILES[1])]
         subprocess.run(command,env=env,cwd=directory,check=True)
-        shutil.copy2(directory/'Strata-T8.exe',root/'Strata-T8.exe')
+        shutil.copy2(directory/'Strata.exe',root/'Strata.exe')
     record={'schema':1,'version':version,'static_runtime':True,'compiler':compiler,
         'inputs':{name:sha(root/name) for name in FILES},'builder_sha256':sha(root/'tools/build_windows_launcher.py'),
-        'sha256':sha(root/'Strata-T8.exe')}
+        'sha256':sha(root/'Strata.exe')}
     (root/'LAUNCHER-BUILD.json').write_text(json.dumps(record,indent=2),'utf-8')
     return verify(root)
 

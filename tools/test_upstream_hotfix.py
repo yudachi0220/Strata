@@ -27,7 +27,7 @@ class HotfixSynchronization(unittest.TestCase):
                   [('strata-windows-x64.zip', 'a'), ('strata-windows-x64-hip.zip', 'b')]]
         result = sync(self.repo, str(self.up), select_ref('release', 'v0.1.40.1'), release_assets=assets)
         meta = json.loads((self.repo/'meta.json').read_text())
-        self.assertEqual(result['version'], '0.1.40-t8.1')
+        self.assertEqual(result['version'], '0.1.40')
         self.assertEqual(meta['upstream_release_tag'], 'v0.1.40.1')
         self.assertEqual(meta['upstream_commit'], sha)
         self.assertEqual(meta['upstream_version'], meta['engine_version'])
@@ -45,7 +45,7 @@ class HotfixSynchronization(unittest.TestCase):
         self.git(self.up, 'tag', 'v0.1.40.2')
         result = sync(self.repo, str(self.up), 'refs/tags/v0.1.40.2')
         meta = json.loads((self.repo/'meta.json').read_text())
-        self.assertEqual(result['version'], '0.1.40-t8.2')
+        self.assertEqual(result['version'], '0.1.40')
         self.assertEqual(meta['upstream_version'], '0.1.40.2')
         self.assertEqual(meta['engine_version'], '0.1.40.2')
         self.assertEqual(meta['upstream_release_tag'], 'v0.1.40.2')
@@ -90,7 +90,7 @@ class HotfixSynchronization(unittest.TestCase):
         self.commit(self.up, 'second hotfix')
         self.git(self.up, 'tag', 'v0.1.40.2')
         result = sync(self.repo, str(self.up), 'refs/tags/v0.1.40.2')
-        self.assertEqual(result['version'], '0.1.40-t8.2')
+        self.assertEqual(result['version'], '0.1.40')
         self.assertNotIn('engine_assets_sha256', json.loads((self.repo/'meta.json').read_text()))
 
     def test_missing_asset_hash_restores_original_checkout(self):
@@ -191,8 +191,8 @@ class HotfixSynchronization(unittest.TestCase):
         for ancestor in (old, before, rewritten, incoming):
             self.git(self.repo, 'merge-base', '--is-ancestor', ancestor, 'HEAD')
         self.assertEqual(result['upstream_commit'], incoming)
-        self.assertEqual((self.repo/'README.md').read_text(), 'T8 readme')
-        self.assertEqual((self.repo/'portable.py').read_text(), 'T8 launcher')
+        self.assertEqual((self.repo/'README.md').read_text(), 'Strata readme')
+        self.assertEqual((self.repo/'portable.py').read_text(), 'Strata launcher')
         self.assertFalse(self.git(self.repo, 'status', '--porcelain'))
 
     def test_changed_or_unknown_baseline_refuses_rewrite_and_preserves_checkout(self):
@@ -242,7 +242,7 @@ class UpstreamVersionContract(unittest.TestCase):
         self.assertEqual(upstream_version_key('0.1.40'), (0, 1, 40, 0))
         for bad in ('0.1.40.1.2', '0.1.40.01', '01.1.40'):
             with self.assertRaises(ValueError): upstream_version_key(bad)
-        with self.assertRaises(ValueError): version_key('0.1.40.1-t8.1')
+        with self.assertRaises(ValueError): version_key('0.1.40.1')
         for bad in ('v0.1.40.01', 'v0.1.40.1.2', 'v0.1.40-rc1', 'v0.1.40\n'):
             with self.assertRaises(ValueError): select_ref('release', bad)
 

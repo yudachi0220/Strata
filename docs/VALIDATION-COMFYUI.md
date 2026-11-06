@@ -1,6 +1,6 @@
 # ComfyUI 与 VisionReady 验收
 
-日期：2026-10-06；版本：0.1.39-t8.5；上游源码和预编译引擎：0.1.39。
+日期：2026-10-06；版本：0.1.39；上游源码和预编译引擎：0.1.39。
 
 ## 实际推理与绘图
 
@@ -34,11 +34,11 @@ AMD 无实机验收，Windows AMD 视觉不支持。旧 ComfyUI 适配未做完�
 
 实际结束托管实例的语言引擎后，状态仍识别视觉驻留，unload 成功清理；结束自有 HTTP 服务后两类子进程退出，按记录启动新实例成功。没有结束其他用户进程。
 
-本机应用/服务器/节点/更新回归 272 项通过，安装回归 258 项通过。GitHub [发行工作流](https://github.com/T8mars/Strata-T8/actions/runs/37363072650) 已通过相同测试并构建资产。
+本机应用/服务器/节点/更新回归 272 项通过，安装回归 258 项通过。GitHub [发行工作流](https://github.com/yudachi0220/Strata/actions/runs/37363072650) 已通过相同测试并构建资产。
 
 前端实际导入 API 示例为节点图；Strata 侧栏能按需启动懒加载服务，并隐藏 API key。
 
-## 0.1.39-t8.6 中文路径修复
+## 0.1.39 中文路径修复
 
 Windows 10 1903+ 的原生引擎采用应用 UTF-8 manifest，保留已有权限、依赖及资源语言；不修改系统 locale。构建拒绝修改有签名的二进制，记录修改前后 SHA256。[Microsoft 兼容说明](https://learn.microsoft.com/en-us/windows/apps/design/globalizing/use-utf8-code-page)
 
@@ -52,6 +52,6 @@ Windows 10 1903+ 的原生引擎采用应用 UTF-8 manifest，保留已有权限
 
 ## 正式发行
 
-[t8.6 Release](https://github.com/T8mars/Strata-T8/releases/tag/v0.1.39-t8.6) 发布六个资产：两种 Windows 整合包、节点 ZIP 及各自 SHA256。源提交为 2b58a24e077a43aaa517020d28ef44b3b7c88ac4；VisionReady 为 1,922,392,794 字节，NoModels 为 1,208,706,263 字节。六个资产均核对 GitHub 官方 digest 与本地 SHA256，主模型和 MTP 未包含。
+[t8.6 Release](https://github.com/yudachi0220/Strata/releases/tag/v0.1.39) 发布六个资产：两种 Windows 整合包、节点 ZIP 及各自 SHA256。源提交为 2b58a24e077a43aaa517020d28ef44b3b7c88ac4；VisionReady 为 1,922,392,794 字节，NoModels 为 1,208,706,263 字节。六个资产均核对 GitHub 官方 digest 与本地 SHA256，主模型和 MTP 未包含。
 
-本机完整回归 280+258 项通过；[GitHub CI](https://github.com/T8mars/Strata-T8/actions/runs/37368043450) 通过，1 项真实解释器签名检查因 runner 解释器未签名而跳过，可控签名拒绝与实际资源更新测试运行。Windows Release 任务未取得 hosted runner，本版由同一源码提交在本机打包、校验和发布，后续自动发行工作流保留。
+本机完整回归 280+258 项通过；[GitHub CI](https://github.com/yudachi0220/Strata/actions/runs/37368043450) 通过，1 项真实解释器签名检查因 runner 解释器未签名而跳过，可控签名拒绝与实际资源更新测试运行。Windows Release 任务未取得 hosted runner，本版由同一源码提交在本机打包、校验和发布，后续自动发行工作流保留。

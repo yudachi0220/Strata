@@ -42,7 +42,7 @@ try {
     if ($StatusFile -and !$HandoffNonce) { throw 'Missing update handoff nonce.' }
     if ($LogPath) { Start-Transcript -LiteralPath $LogPath -Force | Out-Null; $transcribing = $true }
     Write-UpdateStatus 'waiting_parent'
-    Write-Host 'Strata-T8 | By T8star'
+    Write-Host 'Strata | By yudachi0220'
     Write-Host 'Waiting for the launcher to exit; models and settings are preserved.'
     $parent = Get-Process -Id $ParentId -ErrorAction SilentlyContinue
     if ($parent -and !$parent.WaitForExit(60000)) { throw 'Launcher is still running. No update was applied.' }
@@ -88,7 +88,7 @@ try {
     if (!$originalParent -and (Test-Path -LiteralPath $python -PathType Leaf)) {
         try {
             Start-Process -FilePath $python -ArgumentList @('-X','utf8','-u','portable.py','settings','--ui-port',"$UIPort") -WorkingDirectory $appDirectory -WindowStyle Hidden | Out-Null
-        } catch { Write-Host 'Settings could not restart. Run Strata-T8.exe and read logs/update-helper.log.' }
+        } catch { Write-Host 'Settings could not restart. Run Strata.exe and read logs/update-helper.log.' }
     }
 }
 if ($transcribing) { Stop-Transcript | Out-Null }

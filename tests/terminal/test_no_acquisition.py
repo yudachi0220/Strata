@@ -35,7 +35,7 @@ INSTALLER_MODULES = {"setup", "pip", "ensurepip", "venv", "huggingface_hub", "mo
                      "sycl.setup_intel"}
 #: Files that may be loaded on the start/serve side besides the control, cli and serve packages.
 ALLOWED_TOOLS = {"tools.strata_tokenizer", "tools.gguf_reader", "tools.strata_video", "tools.portable_io"}
-# T8 adds local video decoding and atomic config writes; none of these installs dependencies.
+# Strata adds local video decoding and atomic config writes; none of these installs dependencies.
 
 #: argv words that mean "acquire": a subprocess whose literal argv contains one of these is an installer.
 INSTALL_WORDS = {"pip", "pip3", "git", "cmake", "ninja", "npm", "npx", "pnpm", "yarn", "winget", "apt-get", "apt",
@@ -55,7 +55,7 @@ NETWORK_ALLOWED = {
 #: Modules that import the installer on purpose, with the explicit command that reaches them.
 INSTALLER_IMPORT_ALLOWED = {
     "strata_control/calibration.py": "`strata engine calibrate`: an explicit tuning command, imports setup lazily",
-    "serve/portable_ui.py": "T8 update/restore helpers run only after an explicit local setup-page action",
+    "serve/portable_ui.py": "Strata update/restore helpers run only after an explicit local setup-page action",
 }
 
 SERVING_DIRS = ("serve", "strata_cli", "strata_control")

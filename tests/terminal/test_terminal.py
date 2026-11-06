@@ -590,7 +590,7 @@ class ContractTests(unittest.TestCase):
             svc.prepare(messages, [], {})
 
     def test_direct_server_remote_bind_without_key_is_refused_before_engine_load(self):
-        # T8 retains mandatory authentication on every non-loopback bind.
+        # Strata retains mandatory authentication on every non-loopback bind.
         import serve.server as server
         cases = [('{"args":[]}', []), ('{"args":[],"api_key":"none"}', []), ('{"args":[]}', ["--no-api-key"]),
                  ('{"args":[]}', ["--api-key", "none"])]

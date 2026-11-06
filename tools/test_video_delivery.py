@@ -142,7 +142,7 @@ class NativeVideoSwitch(TemporaryInstallation):
         config['args'] += ['--max-context', '8192', '--kv', 'int8']
         cfg = json_file(self.root, 'strata-iq3_s.json', config)
         state = {'portable_data_dir': 'separate-model'}
-        current = {'version': '0.1.42-t8.2', 'edition': 'VisionReady-NoMainModel'}
+        current = {'version': '0.1.42', 'edition': 'VisionReady-NoMainModel'}
         with self.launcher_scope(), mock.patch.object(portable.upstream, 'cuda_lib_dirs', return_value=[self.root/'runtime']), \
              mock.patch.object(portable.upstream, 'upgrade_config', side_effect=lambda path, value:value):
             portable.refresh_updated_config(cfg, state, current)
@@ -164,7 +164,7 @@ class NativeVideoSwitch(TemporaryInstallation):
         cfg = json_file(self.root, 'strata-iq3_s.json', config)
         with self.launcher_scope(), mock.patch.object(portable.upstream, 'cuda_lib_dirs', return_value=[]), \
              mock.patch.object(portable.upstream, 'upgrade_config', side_effect=lambda path, value:value):
-            portable.refresh_updated_config(cfg, {}, {'version': '0.1.42-t8.2', 'edition': 'Portable-NoModels'})
+            portable.refresh_updated_config(cfg, {}, {'version': '0.1.42', 'edition': 'Portable-NoModels'})
         saved = portable.read_json(cfg)
         self.assertNotIn('vision', saved)
         self.assertNotIn('--vision', engine_args(saved))
@@ -250,7 +250,7 @@ def native_fixture(root):
         'third_party/llama.cpp/UPSTREAM.json': '{}',
     }.items():
         put(root, name, data)
-    meta = {'version': '0.1.42-t8.2', 'upstream_repository': 'Niko1221/Strata', 'upstream_version': '0.1.42',
+    meta = {'version': '0.1.42', 'upstream_repository': 'Niko1221/Strata', 'upstream_version': '0.1.42',
             'engine_version': '0.1.42', 'upstream_release_tag': 'v0.1.42', 'upstream_commit': 'e'*40,
             'engine_assets_sha256': {'strata-windows-x64.zip': 'd'*64, 'strata-windows-x64-hip.zip': 'f'*64}}
     json_file(root, 'meta.json', meta)
@@ -272,7 +272,7 @@ def native_fixture(root):
                 build['outputs'][name] = {'sha256': native.digest(path), 'size': path.stat().st_size,
                     'ptx_architectures': ['120a'] if name == 'strata-vision.exe' else ['120'],
                     'utf8_manifest': 'activeCodePage=UTF-8', 'cuda_architectures': list(native.ARCHITECTURES)}
-            vendor['t8_native_build'] = build
+            vendor['strata_native_build'] = build
             vendor['capabilities'] = {'native_video': True, 'geniv': 1, 'encv': 1}
         json_file(root, directory+'/BUILD.json', vendor)
     return meta
@@ -285,7 +285,7 @@ class NativeBuildDelivery(TemporaryInstallation):
             build = portable.read_json(self.root/directory/'BUILD.json')
             provenance.validate_engine_build(build, directory, meta, '0.1.42', allow_vendor=False, root=self.root)
         vendor_only = portable.read_json(self.root/'engine/BUILD.json')
-        del vendor_only['t8_native_build']
+        del vendor_only['strata_native_build']
         with self.assertRaisesRegex(ValueError, 'self-built CUDA'):
             provenance.validate_engine_build(vendor_only, 'engine', meta, '0.1.42', allow_vendor=False, root=self.root)
 
@@ -354,8 +354,8 @@ class NativeBuildDelivery(TemporaryInstallation):
         self.assertTrue(required <= names)
         self.assertFalse(any('roadmap.md' in name.casefold() or 'test_fixture.py' in name for name in names))
         self.assertEqual(manifest['weights'], {'main': False, 'mtp': False, 'vision': False})
-        self.assertTrue(manifest['engines']['engine']['t8_native_build']['capabilities']['native_video'])
-        self.assertNotIn('t8_native_build', manifest['engines']['engine-hip'])
+        self.assertTrue(manifest['engines']['engine']['strata_native_build']['capabilities']['native_video'])
+        self.assertNotIn('strata_native_build', manifest['engines']['engine-hip'])
         updater.validate_manifest(target, manifest)
         with zipfile.ZipFile(archive) as z:
             self.assertIsNone(z.testzip())
@@ -457,7 +457,7 @@ class VideoLicenseInventory(TemporaryInstallation):
 
 
 def update_package(root, files, version):
-    files = {**files, 'meta.json': json.dumps({'version': version, 'repository': 'T8mars/Strata-T8',
+    files = {**files, 'meta.json': json.dumps({'version': version, 'repository': 'yudachi0220/Strata',
              'edition': 'Portable-NoModels', 'weights': {'main': False, 'mtp': False, 'vision': False}, 'models_included': False})}
     entries = []
     for name, value in files.items():
@@ -476,7 +476,7 @@ class VideoReleaseUpdate(TemporaryInstallation):
         old = {'engine/BUILD.json': '{"version":"old"}', 'engine/strata.exe': b'old engine',
                'serve/server.py': '# old server', 'runtime/python/old-decoder.txt': 'obsolete decoder',
                'tools/apply_portable_update.ps1': (SOURCE/'tools/apply_portable_update.ps1').read_bytes()}
-        update_package(installed, old, '0.1.42-t8.1')
+        update_package(installed, old, '0.1.42')
         newer = {'engine/BUILD.json': '{"version":"0.1.42","capabilities":{"native_video":true}}',
                  'engine/strata.exe': b'new native engine', 'engine/strata-vision.exe': b'new ENCV helper',
                  'serve/server.py': '# native server', 'serve/video.py': '# frame contract',
@@ -486,7 +486,7 @@ class VideoReleaseUpdate(TemporaryInstallation):
                  'runtime/python/Lib/site-packages/av.libs/avcodec.dll': b'new decoder DLL',
                  'licenses/video/NOTICE.md': '# independent decoder licenses',
                  'licenses/video/COPYING.LGPLv3': b'license text fixture'}
-        update_package(incoming, newer, '0.1.42-t8.2')
+        update_package(incoming, newer, '0.1.42')
         config = self.config()
         config['vision']['native_video'] = True
         self.user_files = {'strata-iq3_s.json': json.dumps(config), 'portable-settings.json': '{"data":"external"}',
@@ -500,8 +500,8 @@ class VideoReleaseUpdate(TemporaryInstallation):
                 if path.is_file():
                     z.write(path, 'Strata/'+path.relative_to(incoming).as_posix())
         data = payload.getvalue()
-        name = archive_name('0.1.42-t8.2')
-        release = {'tag_name': 'v0.1.42-t8.2', 'assets': [
+        name = archive_name('0.1.42')
+        release = {'tag_name': 'v0.1.42', 'assets': [
             {'name': name, 'size': len(data), 'browser_download_url': 'https://github.com/fixture/archive'},
             {'name': name+'.sha256', 'browser_download_url': 'https://github.com/fixture/checksum'}]}
         def fetch(url, destination=None, limit=None):
@@ -546,7 +546,7 @@ class VideoReleaseUpdate(TemporaryInstallation):
         for name, value in old.items():
             self.assertEqual((installed/name).read_bytes(), value if isinstance(value, bytes) else value.encode('utf-8'))
         self.assertFalse((installed/'serve/video.py').exists())
-        self.assertEqual(portable.read_json(installed/'PACKAGE-MANIFEST.json')['version'], '0.1.42-t8.1')
+        self.assertEqual(portable.read_json(installed/'PACKAGE-MANIFEST.json')['version'], '0.1.42')
         self.assert_user_files(installed)
 
 
@@ -567,16 +567,16 @@ class VideoUpstreamSynchronization(TemporaryInstallation):
         git(self.root, 'clone', str(self.upstream), str(self.fork))
         git(self.fork, 'config', 'user.name', 'Video delivery CPU fixture')
         git(self.fork, 'config', 'user.email', 'fixture@example.invalid')
-        json_file(self.fork, 'meta.json', {'upstream_version': '0.1.42', 'revision': 2, 'version': '0.1.42-t8.2'})
-        self.retained = {'README.md': 'professional T8 README', 'serve/video.py': 'video message contract',
+        json_file(self.fork, 'meta.json', {'upstream_version': '0.1.42', 'revision': 2, 'version': '0.1.42'})
+        self.retained = {'README.md': 'professional Strata README', 'serve/video.py': 'video message contract',
                          'tools/strata_video.py': 'decoder production module', 'tools/build_native_portable.py': 'native builder',
                          'requirements-portable.txt': 'av==15.0.0\n', 'licenses/video/NOTICE.md': 'video notice',
-                         'src/program/generate.cpp': 'T8 native temporal inference\n',
+                         'src/program/generate.cpp': 'Strata native temporal inference\n',
                          'features.json': '{"native_video_cuda":true,"native_video_default":false}',
-                         '.gitattributes': 'README.md merge=t8-keep\n', '.gitignore': '.portable-build/\nroadmap.md\n'}
+                         '.gitattributes': 'README.md merge=strata-keep\n', '.gitignore': '.portable-build/\nroadmap.md\n'}
         for name, value in self.retained.items():
             put(self.fork, name, value)
-        commit(self.fork, 'T8 opt-in video implementation')
+        commit(self.fork, 'Strata opt-in video implementation')
         put(self.fork, 'roadmap.md', 'private local research')
 
     def test_unrelated_upstream_update_preserves_all_video_files_and_requires_engine_rebuild(self):
@@ -588,7 +588,7 @@ class VideoUpstreamSynchronization(TemporaryInstallation):
                   {'name': 'strata-windows-x64-hip.zip', 'digest': 'sha256:'+'f'*64}]
         result = sync_upstream.sync(self.fork, str(self.upstream), 'refs/tags/v0.1.43', release_assets=assets)
         self.assertTrue(result['changed'])
-        self.assertEqual(result['version'], '0.1.43-t8.1')
+        self.assertEqual(result['version'], '0.1.43')
         for name, value in self.retained.items():
             self.assertEqual((self.fork/name).read_text('utf-8'), value)
         self.assertEqual((self.fork/'setup.py').read_text(), 'upstream installer next version\n')

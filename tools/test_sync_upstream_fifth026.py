@@ -33,9 +33,9 @@ class SyncCancellation(unittest.TestCase):
         self.assertEqual(self.snapshot(), before)
         self.assertFalse(sync.operation_path(self.repo, 'MERGE_HEAD').exists())
         self.assertEqual(self.git(self.repo, 'status', '--porcelain'), '')
-        self.assertEqual((self.repo/'README.md').read_text(), 'T8 readme')
-        self.assertEqual((self.repo/'portable.py').read_text(), 'T8 launcher')
-        self.assertEqual(self.git(self.repo, 'for-each-ref', '--format=%(refname)', 'refs/strata-t8'), '')
+        self.assertEqual((self.repo/'README.md').read_text(), 'Strata readme')
+        self.assertEqual((self.repo/'portable.py').read_text(), 'Strata launcher')
+        self.assertEqual(self.git(self.repo, 'for-each-ref', '--format=%(refname)', 'refs/strata'), '')
 
     def test_cancel_during_generation_restores_existing_documentation(self):
         (self.repo/'README-UPSTREAM.md').write_text('saved upstream documentation')
@@ -88,7 +88,7 @@ class SyncCancellation(unittest.TestCase):
         meta = json.loads((self.repo/'meta.json').read_text('utf-8'))
         self.assertEqual(meta['upstream_commit'], self.git(self.up, 'rev-parse', 'HEAD'))
         self.assertEqual((self.repo/'README-UPSTREAM.md').read_text().strip(), 'new upstream readme')
-        self.assertEqual((self.repo/'portable.py').read_text(), 'T8 launcher')
+        self.assertEqual((self.repo/'portable.py').read_text(), 'Strata launcher')
 
     def test_cancel_never_aborts_a_replacement_user_merge(self):
         self.git(self.repo, 'switch', '-c', 'user-other')
@@ -109,7 +109,7 @@ class SyncCancellation(unittest.TestCase):
                 sync.sync(self.repo, str(self.up), 'refs/heads/main')
         self.assertEqual(self.git(self.repo, 'rev-parse', 'MERGE_HEAD'), user_commit)
         self.assertEqual((self.repo/'user-only.py').read_text(), 'user branch')
-        self.assertEqual((self.repo/'portable.py').read_text(), 'T8 launcher')
+        self.assertEqual((self.repo/'portable.py').read_text(), 'Strata launcher')
 
 
 if __name__ == '__main__':

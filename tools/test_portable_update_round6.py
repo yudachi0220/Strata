@@ -39,7 +39,7 @@ Microsoft.PowerShell.Management\\Copy-Item -LiteralPath $LiteralPath -Destinatio
 }'''
         self.restored(self.wrapper(path, body), root, path)
         self.assertEqual((incoming/'app.py').read_text(), 'changed after preflight')
-        self.assertFalse(any(p.name.startswith('.t8-') for p in root.rglob('*')))
+        self.assertFalse(any(p.name.startswith('.strata-') for p in root.rglob('*')))
 
     def test_corrupt_copy_with_same_length_is_not_committed(self):
         root, _, path = self.plan({'app.py': 'old'}, {'app.py': 'new'})
@@ -71,7 +71,7 @@ if ($LiteralPath.EndsWith('PACKAGE-MANIFEST.json')) { [IO.File]::AppendAllText($
 
     def test_delayed_apply_rejects_metadata_version_disagreement(self):
         root, incoming, path = self.plan({'app.py': 'old'}, {'app.py': 'new'})
-        self.rebind_meta(path, incoming, {'version': '0.1.39-t8.99'})
+        self.rebind_meta(path, incoming, {'version': '0.1.39'})
         self.restored(self.apply(path), root, path)
         self.assertFalse((self.base/'backup').exists())
 
@@ -294,7 +294,7 @@ class UpstreamTransactions(unittest.TestCase):
         self.advance()
         self.git(self.up, 'tag', 'v0.1.39')
         result = upstream.sync(self.repo, str(self.up), 'refs/tags/v0.1.39')
-        self.assertEqual(result['version'], '0.1.39-t8.2')
+        self.assertEqual(result['version'], '0.1.39')
         self.assertFalse(self.git(self.repo, 'status', '--porcelain'))
 
 

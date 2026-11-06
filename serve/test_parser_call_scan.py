@@ -17,7 +17,7 @@ def events_without_ids(events):
 
 
 def parser_result(operation, *args):
-    # T8 rejects malformed trailing function content. The fast and reference walks
+    # Strata rejects malformed trailing function content. The fast and reference walks
     # must reject it identically as well as producing identical valid events.
     try:
         return ("events", events_without_ids(operation(*args)))

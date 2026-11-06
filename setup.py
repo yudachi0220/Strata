@@ -9175,7 +9175,7 @@ def install_dsv41(a, family, gpu, hip, amd, cuda_tk, multi, port, ram, adopted, 
     if ista:
         prof = DSV41_PROFILES / md["profile"]          # which experts are used most: the RAM store starts with them (the engine reads <pack>/expert-profile.bin)
         if not prof.exists():
-            prof = prof.with_suffix('.profile')       # T8 portable metadata compatible with older weight-policy checks
+            prof = prof.with_suffix('.profile')       # Strata portable metadata compatible with older weight-policy checks
         if prof.is_file() and not (pack / "expert-profile.bin").exists():
             pack.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(prof, pack / "expert-profile.bin")

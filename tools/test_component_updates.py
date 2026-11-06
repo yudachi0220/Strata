@@ -28,10 +28,10 @@ class Components(unittest.TestCase):
         files={'app.py':'old app','START-HERE.bat':'one entry','runtime/python/python.exe':'python',
             'runtime/asr/ASR-CPU.json':'cpu runtime','engine/strata.exe':'cuda','engine-hip/strata.exe':'hip',
             'tools/apply_portable_update.ps1':(SOURCE/'tools/apply_portable_update.ps1').read_text(encoding='utf-8')}
-        package(root,files,'0.1.42-t8.8')
-        files['app.py']='new app';package(incoming,files,'0.1.42-t8.9')
+        package(root,files,'0.1.42')
+        files['app.py']='new app';package(incoming,files,'0.1.42')
         index=components.build(incoming,output)
-        assets={p.name:{'name':p.name,'size':p.stat().st_size,'browser_download_url':'https://github.com/T8mars/Strata-T8/releases/download/v0.1.42-t8.9/'+p.name} for p in output.iterdir()}
+        assets={p.name:{'name':p.name,'size':p.stat().st_size,'browser_download_url':'https://github.com/yudachi0220/Strata/releases/download/v0.1.42/'+p.name} for p in output.iterdir()}
         calls=[]
         def fetch(url,destination=None,limit=2*1024**3):
             name=url.rsplit('/',1)[1];calls.append(name);raw=(output/name).read_bytes()
@@ -57,7 +57,7 @@ class Components(unittest.TestCase):
         self.assertEqual((assembled/'runtime/python/python.exe').read_text(),'python')
     def test_index_rejects_cross_component_files_versions_and_main_models(self):
         root,_,_,index,_,_,_=self.fixture()
-        bad=copy.deepcopy(index);bad['version']='0.1.42-t8.10'
+        bad=copy.deepcopy(index);bad['version']='0.1.42'
         with self.assertRaises(ValueError):components.validate(bad,root)
         bad=copy.deepcopy(index);bad['components'][0]['files'].append(copy.deepcopy(bad['components'][1]['files'][0]))
         with self.assertRaises(ValueError):components.validate(bad,root)
@@ -74,7 +74,7 @@ class Components(unittest.TestCase):
                  'models/main.gguf':'user model','.asr-cache/cues.json':'dialogue','.video-tasks/notes.json':'progress'}
         for name,value in private.items():
             path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text(value)
-        release={'tag_name':'v0.1.42-t8.9','assets':list(assets.values())}
+        release={'tag_name':'v0.1.42','assets':list(assets.values())}
         with mock.patch.object(update,'fetch',side_effect=fetch),mock.patch.object(update,'running_processes',return_value=[]):
             plan=update.prepare(root,release)
         def apply():
@@ -84,7 +84,7 @@ class Components(unittest.TestCase):
         self.assertEqual((root/'app.py').read_text(),'new app')
         backups=restore.list_backups(root)['backups']
         self.assertEqual(len(backups),1);self.assertTrue(backups[0]['available'])
-        self.assertEqual(backups[0]['from_version'],'0.1.42-t8.8')
+        self.assertEqual(backups[0]['from_version'],'0.1.42')
         with mock.patch.object(update,'running_processes',return_value=[]):restore.prepare(root,backups[0]['id'])
         apply()
         self.assertEqual((root/'app.py').read_text(),'old app')
@@ -92,7 +92,7 @@ class Components(unittest.TestCase):
         self.assertFalse(any(name.endswith('.zip') and 'component-app' not in name for name in calls))
     def test_tampered_backup_fails_before_replacement(self):
         root,_,_,index,assets,_,fetch=self.fixture()
-        release={'tag_name':'v0.1.42-t8.9','assets':list(assets.values())}
+        release={'tag_name':'v0.1.42','assets':list(assets.values())}
         with mock.patch.object(update,'fetch',side_effect=fetch),mock.patch.object(update,'running_processes',return_value=[]):plan=update.prepare(root,release)
         process=subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(root/'.portable-update/apply.ps1'),'-PlanPath',str(root/'.portable-update/plan.json')],capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=35)
         self.assertEqual(process.returncode,0,process.stdout+process.stderr)

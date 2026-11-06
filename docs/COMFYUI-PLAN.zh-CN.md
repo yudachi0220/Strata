@@ -1,8 +1,8 @@
 # ComfyUI 节点与 VisionReady 整合包规划
 
-记录日期：2026-10-06。状态：已实施，当前结果见 [验收记录](VALIDATION-COMFYUI-T8.md)。以下保留实施前的审查记录。本轮已由主 Agent 与一个独立子 Agent 核对源码并讨论；以下为功能范围、技术方案和验收门槛，不代表功能已经实现。
+记录日期：2026-10-06。状态：已实施，当前结果见 [验收记录](VALIDATION-COMFYUI.md)。以下保留实施前的审查记录。本轮已由主 Agent 与一个独立子 Agent 核对源码并讨论；以下为功能范围、技术方案和验收门槛，不代表功能已经实现。
 
-用户确认：文本处理、图片理解和 ComfyUI 内自动启动/加载/卸载三个部分全部需要；整合包应包含视觉权重和配置。现有 v0.1.39-t8.4 是不含任何权重的发行版，后续 VisionReady 包改变的是视觉部分，主模型 GGUF 与 MTP 仍另行分发。
+用户确认：文本处理、图片理解和 ComfyUI 内自动启动/加载/卸载三个部分全部需要；整合包应包含视觉权重和配置。现有 v0.1.39 是不含任何权重的发行版，后续 VisionReady 包改变的是视觉部分，主模型 GGUF 与 MTP 仍另行分发。
 
 ## 可行性与架构
 
@@ -87,11 +87,11 @@ ComfyUI 当前 async 节点可以进入 PENDING 后让其他就绪分支继续�
 
 当前 NVIDIA 引擎已有 `strata-vision.exe`；Windows HIP 发行目录没有视觉 helper，上游 Windows AMD 配置也有相应限制。首版先在现有 NVIDIA 电脑验收全部功能；AMD 文本/托管可复用现有基础。若要声明 AMD 视觉支持，必须补齐独立 CPU helper、对应运行库及实机验收，不以“NVIDIA CPU 编码能运行”推断 AMD 一定可用。
 
-建议分别发布小型 `ComfyUI-Strata-T8` 节点 ZIP 与 `VisionReady-NoMainModel` 运行包；ComfyUI 内选择现有运行包，也可通过明确安装入口获取匹配版本。节点与运行包独立更新、共享主模型目录，发布协议/能力兼容范围，固定节点 ID 并提供必要工作流迁移。首版按实测 ComfyUI 版本声明兼容；优先 V3 定义，可共享核心逻辑添加旧版适配。[ComfyUI V3 文档](https://docs.comfy.org/custom-nodes/v3_migration)
+建议分别发布小型 `ComfyUI-Strata` 节点 ZIP 与 `VisionReady-NoMainModel` 运行包；ComfyUI 内选择现有运行包，也可通过明确安装入口获取匹配版本。节点与运行包独立更新、共享主模型目录，发布协议/能力兼容范围，固定节点 ID 并提供必要工作流迁移。首版按实测 ComfyUI 版本声明兼容；优先 V3 定义，可共享核心逻辑添加旧版适配。[ComfyUI V3 文档](https://docs.comfy.org/custom-nodes/v3_migration)
 
 包名和元数据必须分别声明主模型、MTP、视觉权重，不在包含 mmproj 时继续标注“不含任何模型”。文件白名单只允许指定视觉文件及哈希，不全面放开 `.gguf`；更新器同样核对角色、版本与校验值。
 
-旧 v0.1.39-t8.4 更新器只认 `Portable-NoModels.zip`，且拒绝任何 GGUF。后续发布保留符合旧规则的兼容资产或实现桥接迁移；新更新器再支持 VisionReady 版本和发行类型切换。不能只改资产名而断开已有用户升级，也不能让旧包在普通启动中偷偷下载视觉文件。跨类型升级、配置保留和失败回滚都要测试。
+旧 v0.1.39 更新器只认 `Portable-NoModels.zip`，且拒绝任何 GGUF。后续发布保留符合旧规则的兼容资产或实现桥接迁移；新更新器再支持 VisionReady 版本和发行类型切换。不能只改资产名而断开已有用户升级，也不能让旧包在普通启动中偷偷下载视觉文件。跨类型升级、配置保留和失败回滚都要测试。
 
 现有 ZIP 为 1,208,678,536 字节，视觉文件为 907,543,008 字节；这是现有 ZIP 加未压缩视觉文件的粗略加法，不是新包大小预测。GitHub 单个 Release asset 必须小于 2GiB；构建时测量真实压缩体积并强制校验，超限则同版本按后端拆包或分卷，安装器完成校验和统一落盘。主模型、MTP 不因此混入发行资产。[GitHub Release 限制](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)
 

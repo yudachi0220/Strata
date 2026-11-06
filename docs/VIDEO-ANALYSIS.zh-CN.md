@@ -16,9 +16,9 @@
 
 两种编码均使用采样帧，原生时序编码本身不增加覆盖。高密度采样与分段汇总也不能保证识别全部动作，跨段关联依赖文字记录；未提供自动音轨转写，可另附 SRT、VTT 或转写文本。
 
-ComfyUI 节点 1.1.2 另提供官方 VIDEO 和 IMAGE 批次输入、分段与有界汇总，支持概述、时间轴、分镜观察、问答、风格及提示词反推，输出文字、JSON、证据帧和覆盖信息。每条分析流水线复用一次模型加载，并按连接档案的生命周期权限在结束或取消后执行清理。节点安装与示例见 [独立仓库](https://github.com/T8mars/Comfyui-Strata-T8)。
+ComfyUI 节点 1.1.2 另提供官方 VIDEO 和 IMAGE 批次输入、分段与有界汇总，支持概述、时间轴、分镜观察、问答、风格及提示词反推，输出文字、JSON、证据帧和覆盖信息。每条分析流水线复用一次模型加载，并按连接档案的生命周期权限在结束或取消后执行清理。节点安装与示例见 [独立仓库](https://github.com/yudachi0220/Comfyui-Strata)。
 
-新增 `StrataT8VideoAnalyzeFull`，直接接 VIDEO/原始 IMAGE 批次，按 `duration_s` 与 `sampling_fps` 自动规划，不先经过旧 64 帧采样节点；边采样边分析后汇总，单次最多 256 段。旧节点 ID 与默认路径继续保留，更新节点后重启 ComfyUI 加载。
+新增 `StrataVideoAnalyzeFull`，直接接 VIDEO/原始 IMAGE 批次，按 `duration_s` 与 `sampling_fps` 自动规划，不先经过旧 64 帧采样节点；边采样边分析后汇总，单次最多 256 段。旧节点 ID 与默认路径继续保留，更新节点后重启 ComfyUI 加载。
 
 视频透明通道按白色背景合成。明确标记为 PQ/HLG 的 HDR 文件需先转换为 SDR/sRGB；当前不做 HDR tone mapping。裁剪和拼接保留校正后的源时间戳；混合尺寸帧在节点端保持比例并留白，manifest 记录实际输出尺寸。提示词反推为空时明确失败，不把普通报告当作生成提示词。
 
@@ -27,7 +27,7 @@ ComfyUI 节点 1.1.2 另提供官方 VIDEO 和 IMAGE 批次输入、分段与有
 | 模式 | 输入与能力 | 启用方法 |
 | --- | --- | --- |
 | frames | 带时间戳的图片序列，复用图片编码 | 视觉配置开启即可 |
-| native | 每两帧融合，保留 video_pad、官方时间前缀和位置布局 | NVIDIA T8 自编译引擎，主动开启 |
+| native | 每两帧融合，保留 video_pad、官方时间前缀和位置布局 | NVIDIA Strata 自编译引擎，主动开启 |
 
 整合包运行 `START-HERE.bat --native-video` 启用原生模式，`--no-native-video` 关闭。自定义配置使用 `vision.native_video: true`；服务据此为 helper 和引擎添加 opt-in 参数。默认文本和图片协议继续使用原先的 ENC/GENI/SVE1。AMD 发行引擎不宣称原生视频支持。
 
@@ -47,7 +47,7 @@ ComfyUI 节点 1.1.2 另提供官方 VIDEO 和 IMAGE 批次输入、分段与有
 
 原生数学按 Qwen 官方固定修订 `de4b8e4d43b917e7706784d8bb445c9af86a3540` 及 Transformers `55c3cc9f03cd4fbf2d27d382dcc8fcc544631f8e` 核对，视觉编码复用项目固定 llama.cpp 源码。感谢 Strata、Qwen、llama.cpp、PyAV/FFmpeg 和 ComfyUI 项目。
 
-具体测试范围见[本版验收](VALIDATION-VIDEO-T8.md)。
+具体测试范围见[本版验收](VALIDATION-VIDEO.md)。
 
 本版分段改动增加了真实 CPU 解码回归：12 秒、24 FPS 的 CFR H.264 片段分为 18 段，两种模式各取得 288 个不同源 PTS；此测试不加载视觉或主模型。另有浏览器逻辑回归覆盖 240 帧的发送、汇总、取消、失败、存储及模型卡片自动切换；这不代表新增了 24 FPS 长片的 GPU 内容质量验收。
 

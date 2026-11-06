@@ -290,7 +290,7 @@ class FitMaxTokens(unittest.TestCase):
         self.assertIn("no room to answer", b["error"]["message"])
 
 
-class T8VisionTempFiles(unittest.TestCase):
+class StrataVisionTempFiles(unittest.TestCase):
     """A request's combined image file (req-*.sve, ~10 MB a picture) goes with the request: one refused after prepare()
     wrote it (the engine starting, no room) or whose answer never started left it in the vision directory for good."""
 
@@ -6290,7 +6290,7 @@ class UntimedReads(unittest.TestCase):
             self.assertIsNotNone(procs[0].poll())
 
     def vision(self, program, **cfg):
-        """Use an actual pipe and child process to exercise T8's single persistent reader."""
+        """Use an actual pipe and child process to exercise Strata's single persistent reader."""
         import serve.server as server
         v = server.Vision({'exe': 'test-vision', 'mmproj': 'm', 'model': 't',
                            'start_timeout_s': 0.3, 'encode_timeout_s': 0.3, **cfg}, lazy=True)
@@ -6421,7 +6421,7 @@ class PrepareCancelled(unittest.TestCase):
         v = Vision.__new__(Vision)
 
         def encode(src, keep=(), **options):
-            self.assertIs(options.get('cancel'), cancel)  # T8 also cancels the encode already in progress.
+            self.assertIs(options.get('cancel'), cancel)  # Strata also cancels the encode already in progress.
             seen.append(src)
             cancel.set()                                            # the client leaves during the first encode
             return Path("x"), 3

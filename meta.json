@@ -1,6 +1,6 @@
 {
-  "name": "Strata-T8",
-  "repository": "T8mars/Strata-T8",
+  "name": "Strata",
+  "repository": "yudachi0220/Strata",
   "upstream_repository": "Niko1221/Strata",
   "upstream_version": "0.2.10",
   "upstream_release_tag": "v0.2.10",
@@ -17,7 +17,7 @@
     "strata-engine-0.1.56-windows-x86_64-hip-rx9070.tar.gz": "fb7de19531f8ba2972f1ce3a61cb5d5c8795541b12a3922a1b9d54dc29433a9f"
   },
   "revision": 1,
-  "version": "0.2.10-t8.1",
+  "version": "0.2.10",
   "python_version": "3.12.10",
   "python_zip_sha256": "4acbed6dd1c744b0376e3b1cf57ce906f9dc9e95e68824584c8099a63025a3c3",
   "model_family": "qwen",
@@ -30,7 +30,7 @@
   },
   "protocol_version": 1,
   "models_included": true,
-  "comfyui_repository": "T8mars/Comfyui-Strata-T8",
+  "comfyui_repository": "yudachi0220/Comfyui-Strata",
   "source_version": "0.1.56",
   "control_version": "0.1.56",
   "component_schema": 2,

@@ -5,7 +5,7 @@ Add-Type -TypeDefinition @'
 using System;
 using System.Text;
 using System.Runtime.InteropServices;
-public static class T8Paths {
+public static class StrataPaths {
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true)]
     public static extern uint GetLongPathName(string shortPath, StringBuilder longPath, uint capacity);
     [DllImport("kernel32.dll", CharSet=CharSet.Unicode, SetLastError=true, EntryPoint="GetFileAttributesW")]
@@ -27,7 +27,7 @@ public static class T8Paths {
 function LongPath([string]$path) {
     $buffer = [Text.StringBuilder]::new(32768)
     $full = [IO.Path]::GetFullPath($path)
-    if ([T8Paths]::GetLongPathName($full, $buffer, 32768) -eq 0) { throw "Cannot resolve path: $path" }
+    if ([StrataPaths]::GetLongPathName($full, $buffer, 32768) -eq 0) { throw "Cannot resolve path: $path" }
     return $buffer.ToString().TrimEnd('\')
 }
 $appRoot = $null
@@ -37,7 +37,7 @@ $resultPath = $null
 function CheckRoot([string]$path) {
     $parent = $path
     while ($parent) {
-        if ([T8Paths]::IsReparse($parent)) { throw "Linked update directory: $path" }
+        if ([StrataPaths]::IsReparse($parent)) { throw "Linked update directory: $path" }
         $parent = [IO.Path]::GetDirectoryName($parent)
     }
 }
@@ -50,7 +50,7 @@ function ScopedPath([string]$base, [string]$relative) {
     if (!$target.StartsWith($base + '\', [StringComparison]::OrdinalIgnoreCase)) { throw "Path outside application: $relative" }
     $parent = $target
     while ($parent -and $parent.StartsWith($base, [StringComparison]::OrdinalIgnoreCase)) {
-        if ([T8Paths]::IsReparse($parent)) { throw "Linked path: $relative" }
+        if ([StrataPaths]::IsReparse($parent)) { throw "Linked path: $relative" }
         $parent = [IO.Path]::GetDirectoryName($parent)
     }
     return $target
@@ -178,11 +178,11 @@ function CheckMetadata($metadata, $manifest) {
 function CompareVersion([string]$first, [string]$second) {
     # Compare arbitrarily large integer components without float or lexical ordering.
     foreach ($value in @($first, $second)) {
-        if ($value -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+-t8\.[0-9]+$') { throw 'Invalid installed or staged release version' }
+        if ($value -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+$') { throw 'Invalid installed or staged release version' }
     }
-    $left = $first -split '\.|-t8\.'
-    $right = $second -split '\.|-t8\.'
-    for ($index = 0; $index -lt 4; $index++) {
+    $left = $first -split '\.'
+    $right = $second -split '\.'
+    for ($index = 0; $index -lt 3; $index++) {
         $a = $left[$index] -replace '^0+(?=.)', ''
         $b = $right[$index] -replace '^0+(?=.)', ''
         if ($a.Length -ne $b.Length) { return [Math]::Sign($a.Length - $b.Length) }
@@ -193,7 +193,7 @@ function CompareVersion([string]$first, [string]$second) {
 }
 function InstallFile([string]$source, [string]$target, [long]$size, [string]$digest) {
     # Publish a complete file without overwriting a file created after preflight.
-    $temporary = Join-Path ([IO.Path]::GetDirectoryName($target)) ('.t8-' + [Guid]::NewGuid().ToString('N') + '.tmp')
+    $temporary = Join-Path ([IO.Path]::GetDirectoryName($target)) ('.strata-' + [Guid]::NewGuid().ToString('N') + '.tmp')
     try {
         Copy-Item -LiteralPath $source -Destination $temporary
         # Preflight verifies staging; verify the actual copy before publishing it too.
@@ -211,7 +211,7 @@ function RemoveCompletedOwnedStage {
     $temporaryRoot = LongPath ([IO.Path]::GetTempPath())
     $parent = [IO.Path]::GetDirectoryName($stageRoot)
     if ([IO.Path]::GetFileName($stageRoot) -cne 'incoming' -or
-        [IO.Path]::GetFileName($parent) -cnotmatch '^Strata-T8-update-' -or
+        [IO.Path]::GetFileName($parent) -cnotmatch '^Strata-update-' -or
         !([IO.Path]::GetDirectoryName($parent)).Equals($temporaryRoot, [StringComparison]::OrdinalIgnoreCase) -or
         (Overlapping $parent $appRoot) -or (Overlapping $parent $backupRoot)) { return }
     CheckRoot $parent
@@ -272,7 +272,7 @@ try {
     foreach ($field in @('root','stage','backup')) {
         if ($plan.$field -isnot [string] -or !$plan.$field -or ![IO.Path]::IsPathRooted($plan.$field)) { throw "Invalid update plan directory: $field" }
     }
-    if ($plan.version -isnot [string] -or $plan.version -notmatch '^\d+\.\d+\.\d+-t8\.\d+$' -or
+    if ($plan.version -isnot [string] -or $plan.version -notmatch '^\d+\.\d+\.\d+$' -or
         $plan.manifest_sha256 -isnot [string] -or $plan.manifest_sha256 -cnotmatch '^[0-9a-f]{64}$') { throw 'Invalid update plan identity' }
     CheckEntries $plan.new 'New plan'
     CheckEntries $plan.old 'Installed plan'

@@ -24,11 +24,11 @@ class UpstreamSync(unittest.TestCase):
         self.repo = self.base/'fork'
         self.git(self.base, 'clone', str(self.up), str(self.repo))
         self.identity(self.repo)
-        (self.repo/'meta.json').write_text(json.dumps({'upstream_version': '0.1.39', 'revision': 1, 'version': '0.1.39-t8.1'}))
-        (self.repo/'README.md').write_text('T8 readme')
-        (self.repo/'.gitattributes').write_text('README.md merge=t8-keep\n')
-        (self.repo/'portable.py').write_text('T8 launcher')
-        self.commit(self.repo, 'T8 changes')
+        (self.repo/'meta.json').write_text(json.dumps({'upstream_version': '0.1.39', 'revision': 1, 'version': '0.1.39'}))
+        (self.repo/'README.md').write_text('Strata readme')
+        (self.repo/'.gitattributes').write_text('README.md merge=strata-keep\n')
+        (self.repo/'portable.py').write_text('Strata launcher')
+        self.commit(self.repo, 'Strata changes')
     def tearDown(self): self.tmp.cleanup()
     def git(self, root, *args):
         return subprocess.check_output(['git', *args], cwd=root, text=True, encoding='utf-8', stderr=subprocess.DEVNULL).strip()
@@ -47,16 +47,16 @@ class UpstreamSync(unittest.TestCase):
         before = self.git(self.repo, 'rev-parse', 'HEAD')
         self.assertFalse(sync(self.repo, str(self.up), 'refs/heads/main')['changed'])
         self.assertEqual(self.git(self.repo, 'rev-parse', 'HEAD'), before)
-    def test_normal_merge_retains_T8_readme_and_updates_version(self):
+    def test_normal_merge_retains_upstream_readme_and_updates_version(self):
         (self.up/'README.md').write_text('new upstream readme')
         (self.up/'CMakeLists.txt').write_text('project(strata VERSION 0.1.40)')
         (self.up/'new.py').write_text('upstream feature')
         self.commit(self.up, 'new release')
         result = sync(self.repo, str(self.up), 'refs/heads/main')
-        self.assertEqual(result['version'], '0.1.40-t8.1')
-        self.assertEqual((self.repo/'README.md').read_text(), 'T8 readme')
+        self.assertEqual(result['version'], '0.1.40')
+        self.assertEqual((self.repo/'README.md').read_text(), 'Strata readme')
         self.assertEqual((self.repo/'README-UPSTREAM.md').read_text().strip(), 'new upstream readme')
-        self.assertEqual((self.repo/'portable.py').read_text(), 'T8 launcher')
+        self.assertEqual((self.repo/'portable.py').read_text(), 'Strata launcher')
         self.assertFalse(self.git(self.repo, 'status', '--porcelain'))
     def test_conflict_aborts_without_overwriting_fork(self):
         (self.up/'app.py').write_text('upstream conflict')

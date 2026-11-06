@@ -1,6 +1,6 @@
 # 第二次 20 轮联合检查（2026-10-06）
 
-基线为整合包 `0.1.39-t8.7` 与独立节点 `1.0.0`。主审检查整合包和服务，独立子 Agent 检查节点。每轮对应不同目标。第一次记录见 [AUDIT-20-T8.md](AUDIT-20-T8.md)，没有将旧检查或重复运行完整测试计入本轮。
+基线为整合包 `0.1.39` 与独立节点 `1.0.0`。主审检查整合包和服务，独立子 Agent 检查节点。每轮对应不同目标。第一次记录见 [AUDIT-20.md](AUDIT-20.md)，没有将旧检查或重复运行完整测试计入本轮。
 
 | 轮次 | 本轮目标及结果 | 证据 |
 | --- | --- | --- |
@@ -25,7 +25,7 @@
 | R19 | 上游文档生成失败后 abort 未恢复 README-UPSTREAM；恢复受本工具管理的原文件 | test_sync_upstream，真实 Git |
 | R20 | 两仓完整回归、官方 ComfyUI API、三类实际绘图流程和发行文件核对 | 最终验收记录 |
 
-新增回归位于 `tools/test_portable_round2.py`、`serve/test_runconfig.py` 与 `tools/test_sync_upstream.py`。CI、上游同步和自动发布均执行新回归。[节点第二次 20 轮记录](https://github.com/T8mars/Comfyui-Strata-T8/blob/main/docs/AUDIT-20-ROUND2-NODES.md)。
+新增回归位于 `tools/test_portable_round2.py`、`serve/test_runconfig.py` 与 `tools/test_sync_upstream.py`。CI、上游同步和自动发布均执行新回归。[节点第二次 20 轮记录](https://github.com/yudachi0220/Comfyui-Strata/blob/main/docs/AUDIT-20-ROUND2-NODES.md)。
 
 ## 验证范围
 
@@ -37,8 +37,8 @@
 
 ## 正式发行验证
 
-追加二进制 metadata 边界回归后，[最终 CI](https://github.com/T8mars/Strata-T8/actions/runs/37439572730) 和 [云端构建发行](https://github.com/T8mars/Strata-T8/actions/runs/37441312516) 均通过：整合包/服务 **306 例**、节点集成 **84 例**、安装器 **258 例**。节点自己的 Windows/Linux CI 也通过。浏览器测试仅调整进程启动预算，行为断言保持完整。
+追加二进制 metadata 边界回归后，[最终 CI](https://github.com/yudachi0220/Strata/actions/runs/37439572730) 和 [云端构建发行](https://github.com/yudachi0220/Strata/actions/runs/37441312516) 均通过：整合包/服务 **306 例**、节点集成 **84 例**、安装器 **258 例**。节点自己的 Windows/Linux CI 也通过。浏览器测试仅调整进程启动预算，行为断言保持完整。
 
-[整合包 0.1.39-t8.8](https://github.com/T8mars/Strata-T8/releases/tag/v0.1.39-t8.8) 正式发行来自提交 `bff6d944e2e92f9722c6ac5d4b9c1729729a3d66`，VisionReady 8019 个清单文件，NoModels 8018 个。云端完整文件摘要及 ZIP CRC 通过；发布后再核对 GitHub 资产摘要、公开 SHA256 文件、ZIP 文件目录和关键源码。验证通过小范围 HTTP 请求读取约 4MB，未重新下载两个完整大包。两种包均排除主模型/MTP，VisionReady 保留固定视觉编码器。
+[整合包 0.1.39](https://github.com/yudachi0220/Strata/releases/tag/v0.1.39) 正式发行来自提交 `bff6d944e2e92f9722c6ac5d4b9c1729729a3d66`，VisionReady 8019 个清单文件，NoModels 8018 个。云端完整文件摘要及 ZIP CRC 通过；发布后再核对 GitHub 资产摘要、公开 SHA256 文件、ZIP 文件目录和关键源码。验证通过小范围 HTTP 请求读取约 4MB，未重新下载两个完整大包。两种包均排除主模型/MTP，VisionReady 保留固定视觉编码器。
 
-[节点 1.0.1](https://github.com/T8mars/Comfyui-Strata-T8/releases/tag/v1.0.1) 已由官方工作流发布至 GitHub 与 Comfy Registry（Publisher `t8star`）。Registry CDN 的 17 个文件与发行提交逐一相同，10 个节点可独立导入。2026-10-06 本次检查时 Registry 版本状态仍为 Pending；不能据此宣称 Manager 已可搜索。
+[节点 1.0.1](https://github.com/yudachi0220/Comfyui-Strata/releases/tag/v1.0.1) 已由官方工作流发布至 GitHub 与 Comfy Registry（Publisher `yudachi0220`）。Registry CDN 的 17 个文件与发行提交逐一相同，10 个节点可独立导入。2026-10-06 本次检查时 Registry 版本状态仍为 Pending；不能据此宣称 Manager 已可搜索。

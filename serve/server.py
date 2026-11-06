@@ -1214,7 +1214,7 @@ class StrataEngine:
                 except subprocess.TimeoutExpired:
                     pass
             elapsed = time.monotonic() - spawned_at
-            self.close()  # A bad READY can leave a live child; preserve T8's confirmed-exit cleanup.
+            self.close()  # A bad READY can leave a live child; preserve Strata's confirmed-exit cleanup.
             if (exit_status is not None and _attempt < START_RETRIES and
                     transient_start_failure(log, log_start, elapsed, exit_status)):
                 wait_s = 2.0 * (2 ** _attempt)
@@ -5878,7 +5878,7 @@ class Service:
 
     def _prepare_native(self, ids, media, cancel):
         if self.vision is None or not getattr(self.vision, 'video_requested', False):
-            raise ValueError('Native video is opt-in: enable vision.native_video with a compatible T8 build')
+            raise ValueError('Native video is opt-in: enable vision.native_video with a compatible Strata build')
         if getattr(self.engine, 'batch', 0):
             raise ValueError('Native video requires parallel=1')
         if len(media) > 256:
@@ -10369,7 +10369,7 @@ def main(argv=None, *, lifecycle_event=None, interrupt_exit_code: int = 0) -> in
     except ValueError as e:
         print(f"[strata] {e}: set a key, or leave it out", file=sys.stderr)
         return 2
-    # T8 portable deployments require authentication outside this computer.
+    # Strata portable deployments require authentication outside this computer.
     if a.host not in ("127.0.0.1", "localhost", "::1") and not preflight_api_key:
         print("[strata] LAN service requires an API key. Set --api-key or api_key in the model configuration.",
               file=sys.stderr)

@@ -1,4 +1,4 @@
-"""Merged upstream behavior at T8's strict, managed-service API boundaries."""
+"""Merged upstream behavior at Strata's strict, managed-service API boundaries."""
 import copy
 import http.client
 import json

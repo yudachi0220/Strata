@@ -1,6 +1,6 @@
 # API compatibility
 
-Strata-T8 keeps protocol 1, lazy vision loading, cancellation, process ownership,
+Strata keeps protocol 1, lazy vision loading, cancellation, process ownership,
 and the ComfyUI managed-service contract when syncing upstream releases.
 
 Structured output requires exactly one JSON object by default. For clients that

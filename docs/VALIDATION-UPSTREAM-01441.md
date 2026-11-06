@@ -1,4 +1,4 @@
-# Strata-T8 0.1.44-t8.1 同步与验证
+# Strata 0.1.44 同步与验证
 
 上游基线为 [v0.1.44.1](https://github.com/Niko1221/Strata/releases/tag/v0.1.44.1)，提交 `296b59d2f73c8f04a805df29c2fa97655adace78`。CUDA 与 HIP 引擎为 0.1.44.1；独立节点保持 1.3.0、14 个节点 ID 与协议 1。
 

@@ -94,7 +94,7 @@ def prepare(root,identity):
     check_installation_topology(root,manifest['files'],old['files'])
     # Copy before replacement: a failed restore leaves both current software
     # and the selected successful-update backup available for another attempt.
-    stage=Path(tempfile.mkdtemp(prefix='Strata-T8-update-')).resolve()
+    stage=Path(tempfile.mkdtemp(prefix='Strata-update-')).resolve()
     incoming=stage/'incoming';incoming.mkdir();token=uuid.uuid4().hex;published=False
     try:
         progress=Progress('Copying verified rollback files',sum(entry['size'] for entry in manifest['files']))
@@ -117,6 +117,6 @@ def prepare(root,identity):
         discard_owned_pending_stage(root,previous)
         return plan
     except BaseException:
-        if not published and stage.parent==Path(tempfile.gettempdir()).resolve() and stage.name.startswith('Strata-T8-update-') and not stage.is_symlink():
+        if not published and stage.parent==Path(tempfile.gettempdir()).resolve() and stage.name.startswith('Strata-update-') and not stage.is_symlink():
             shutil.rmtree(stage)
         raise

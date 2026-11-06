@@ -130,7 +130,7 @@ class NativeBuildTests(unittest.TestCase):
         with patch('windows_utf8_manifest.patch_executable', side_effect=patcher) as patch_exe:
             b.install_build(self.root, self.root, self.artifacts, copy.deepcopy(self.native), self.root/'build')
         self.assertEqual(patch_exe.call_count, 2)
-        installed = json.loads((self.engine/'BUILD.json').read_text())['t8_native_build']
+        installed = json.loads((self.engine/'BUILD.json').read_text())['strata_native_build']
         b.validate_native_build(installed, self.root, self.engine)
         self.assertEqual((self.engine/'strata_kq.dll').read_bytes(), self.artifacts['strata_kq.dll'].read_bytes())
         (self.engine/'strata_kq.dll').write_bytes(b'stale vendor library')
@@ -222,7 +222,7 @@ class NativeBuildTests(unittest.TestCase):
         import portable_build_provenance as provenance
         portable = self.root/'portable'; (portable/'engine').mkdir(parents=True)
         for name, source in self.artifacts.items(): b.shutil.copy2(source, portable/'engine'/name)
-        build = dict(self.vendor, t8_native_build=self.native)
+        build = dict(self.vendor, strata_native_build=self.native)
         meta = {'upstream_repository':'Niko1221/Strata', 'upstream_version':'0.1.42',
                 'engine_version':'0.1.42', 'upstream_release_tag':'v0.1.42',
                 'upstream_commit':'e'*40, 'engine_assets_sha256':{
@@ -241,7 +241,7 @@ class NativeBuildTests(unittest.TestCase):
         self.assertEqual((self.engine/'vendor.dll').read_bytes(), b'vendor DLL remains')
         self.assertEqual((self.engine/'strata.exe').read_bytes(), self.artifacts['strata.exe'].read_bytes())
         self.assertTrue(installed['capabilities']['native_video'])
-        self.assertEqual(installed['source'], 't8_native_build')
+        self.assertEqual(installed['source'], 'strata_native_build')
         self.assertEqual(installed['archs'], list(map(int,b.ARCHITECTURES)))
         self.assertEqual(installed['cuda'], '13.0')
         self.assertEqual(len(list((self.root/'build/vendor-backup').rglob('*.exe'))), 2)
@@ -260,7 +260,7 @@ class NativeBuildTests(unittest.TestCase):
              patch.object(b.shutil, 'copy2', side_effect=retry_copy), patch.object(b.time, 'sleep') as sleep:
             b.install_build(self.root, self.root, self.artifacts, copy.deepcopy(self.native), self.root/'build')
         self.assertEqual(sleep.call_count, 1)
-        b.validate_native_build(json.loads((self.engine/'BUILD.json').read_text())['t8_native_build'], self.root, self.engine)
+        b.validate_native_build(json.loads((self.engine/'BUILD.json').read_text())['strata_native_build'], self.root, self.engine)
 
     def test_failed_second_copy_keeps_vendor_tree(self):
         real_copy = b.shutil.copy2
@@ -354,13 +354,13 @@ class NativeBuildTests(unittest.TestCase):
         self.assertTrue(step['with']['include-hidden-files'])
         paths = step['with']['path'].splitlines()
         self.assertEqual(set(paths), {
-            '.portable-build/t8-native/engine-configure.log',
-            '.portable-build/t8-native/engine-build.log',
-            '.portable-build/t8-native/vision-configure.log',
-            '.portable-build/t8-native/vision-build.log',
-            '.portable-build/t8-native/native-contract.log',
-            '.portable-build/t8-native/engine-portable/CMakeFiles/CMakeConfigureLog.yaml',
-            '.portable-build/t8-native/vision-portable/CMakeFiles/CMakeConfigureLog.yaml',
+            '.portable-build/native/engine-configure.log',
+            '.portable-build/native/engine-build.log',
+            '.portable-build/native/vision-configure.log',
+            '.portable-build/native/vision-build.log',
+            '.portable-build/native/native-contract.log',
+            '.portable-build/native/engine-portable/CMakeFiles/CMakeConfigureLog.yaml',
+            '.portable-build/native/vision-portable/CMakeFiles/CMakeConfigureLog.yaml',
         })
 
 

@@ -1,22 +1,22 @@
-# Strata-T8 发行验收
+# Strata 发行验收
 
-验收日期：2026-10-05。正式版本：[v0.1.39-t8.4](https://github.com/T8mars/Strata-T8/releases/tag/v0.1.39-t8.4)，上游源码及 CUDA/HIP 引擎均为 0.1.39；发行源码提交为 `89c6ba6cbe87d49e800c73293c9d484df78162aa`。
+验收日期：2026-10-05。正式版本：[v0.1.39](https://github.com/yudachi0220/Strata/releases/tag/v0.1.39)，上游源码及 CUDA/HIP 引擎均为 0.1.39；发行源码提交为 `89c6ba6cbe87d49e800c73293c9d484df78162aa`。
 
 ## 自动检查与发布
 
 | 验收 | 结果与证据 |
 | --- | --- |
-| Windows 应用、服务器、安全、更新及同步测试 | 235 项通过；安装回归测试 258 项通过，[发行工作流](https://github.com/T8mars/Strata-T8/actions/runs/37307839051) |
-| 独立 CI | 235 项中通过 234 项，跳过 1 项需嵌入式 Python 的入口测试；258 项安装测试通过，[检查工作流](https://github.com/T8mars/Strata-T8/actions/runs/37307778661)。发行工作流具有完整运行库，未跳过该入口测试 |
-| 上游正式版本同步 | [实际运行通过](https://github.com/T8mars/Strata-T8/actions/runs/37298930006)，当时无新版本 |
-| 上游 main 同步 | [实际运行通过](https://github.com/T8mars/Strata-T8/actions/runs/37301167931)，当时无新提交；有更新时使用验证分支 |
+| Windows 应用、服务器、安全、更新及同步测试 | 235 项通过；安装回归测试 258 项通过，[发行工作流](https://github.com/yudachi0220/Strata/actions/runs/37307839051) |
+| 独立 CI | 235 项中通过 234 项，跳过 1 项需嵌入式 Python 的入口测试；258 项安装测试通过，[检查工作流](https://github.com/yudachi0220/Strata/actions/runs/37307778661)。发行工作流具有完整运行库，未跳过该入口测试 |
+| 上游正式版本同步 | [实际运行通过](https://github.com/yudachi0220/Strata/actions/runs/37298930006)，当时无新版本 |
+| 上游 main 同步 | [实际运行通过](https://github.com/yudachi0220/Strata/actions/runs/37301167931)，当时无新提交；有更新时使用验证分支 |
 | Git 合并与冲突 | 临时 Git 仓库测试覆盖正常合并、无更新、README 保留、版本递增、脏工作树和冲突终止；原仓库与目标仓库原有提交均保留为祖先 |
 
 同步、检查及发行工作流均已启用。每日检查上游正式版本；出现合并冲突、测试失败或缺少匹配引擎时停止自动发布。
 
 ## 分发包
 
-文件：`Strata-T8-0.1.39-t8.4-Windows-x64-Portable-NoModels.zip`，大小 **1,208,678,536 字节**。公开资产已下载并核对 SHA256、ZIP CRC 和 8005 个受管文件的大小与哈希。
+文件：`Strata-0.1.39-Windows-x64-Portable-NoModels.zip`，大小 **1,208,678,536 字节**。公开资产已下载并核对 SHA256、ZIP CRC 和 8005 个受管文件的大小与哈希。
 
 ```text
 6f2c1f7d40f22506884703210eb9bb979b8386dfdd13024cfff6ed69eef61deb
